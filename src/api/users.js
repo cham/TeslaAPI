@@ -4,30 +4,22 @@
 var _ = require('underscore'),
     crypto = require('crypto');
 
-function summaryMapping(dbdoc){
+function summaryMapping(user){
     return {
-        username: dbdoc.username,
-        comments_count: dbdoc.comments_count,
-        threads_count: dbdoc.threads_count,
-        points: dbdoc.points,
-        lastpointusage: dbdoc.lastpointusage,
-        view_html: dbdoc.view_html,
-        last_login: dbdoc.last_login,
-        hide_enemy_posts: dbdoc.hide_enemy_posts,
-        timezone: dbdoc.timezone,
-        random_titles: dbdoc.random_titles,
-        banned: dbdoc.banned
+        username: user.username,
+        urlname: user.urlname,
+        comments_count: user.comments_count,
+        threads_count: user.threads_count,
+        points: user.points,
+        lastpointusage: user.lastpointusage,
+        view_html: user.view_html,
+        last_login: user.last_login,
+        hide_enemy_posts: user.hide_enemy_posts,
+        timezone: user.timezone,
+        random_titles: user.random_titles,
+        banned: user.banned
     };
 }
-// function safe(dbdoc){
-//     var unsafe = ['password'];
-//     return _(dbdoc.toObject()).reduce(function(memo, val, key){
-//         if(_(unsafe).indexOf(key) === -1){
-//             memo[key] = val;
-//         }
-//         return memo;
-//     },{});
-// }
 
 module.exports = function(db){
     return {
@@ -77,6 +69,7 @@ module.exports = function(db){
             var now = new Date(),
                 user = new db.user({
                     username: options.username,
+                    urlname: encodeURIComponent(options.username),
                     password: crypto
                                 .createHash("md5")
                                 .update(options.password)

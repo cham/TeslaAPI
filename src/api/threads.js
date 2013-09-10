@@ -10,6 +10,7 @@ function summaryMapping(thread){
         last_comment_by: thread.last_comment_by,
         last_comment_time: thread.last_comment_time,
         name: thread.name,
+        urlname: thread.urlname,
         postedby: thread.postedby,
         comments: thread.comments,
         deleted: thread.deleted,
@@ -68,6 +69,7 @@ module.exports = function(db){
             var now = new Date(),
                 thread = new db.thread({
                     name: options.name,
+                    urlname: encodeURIComponent(options.name.replace(/(\s-|[^A-Za-z0-9-])/g,'-')),
                     postedby: options.postedby,
                     categories: options.categories || [],
                     created: now,
@@ -79,12 +81,13 @@ module.exports = function(db){
             return this.postCommentInThread({
                 postedby: options.postedby,
                 content: options.content,
-                thread: thread
+                threadDoc: thread,
+                returnthread: true
             }, done);
         },
 
         postCommentInThread: function(options, done){
-            var thread = options.thread;
+            var threadDoc = options.threadDoc;
 
             commentsApi.postComment({
                 postedby: options.postedby,
@@ -94,13 +97,16 @@ module.exports = function(db){
                     return done(err);
                 }
 
-                thread.comments.push(comment._id);
-                thread.save(function(err){
+                threadDoc.last_comment_by = options.postedby;
+                threadDoc.last_comment_time = new Date();
+                threadDoc.comments.push(comment._id);
+
+                threadDoc.save(function(err){
                     if(err){
                         return done(err);
                     }
 
-                    return done(null, comment);
+                    return done(null, options.returnthread ? threadDoc : comment);
                 });
             });
         },
@@ -122,7 +128,7 @@ module.exports = function(db){
                 return that.postCommentInThread({
                     postedby: options.postedby,
                     content: options.content,
-                    thread: threads[0]
+                    threadDoc: threads[0]
                 }, done);
             });
         }

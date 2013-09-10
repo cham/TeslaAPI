@@ -107,9 +107,9 @@ module.exports = function routing(){
     });
 
     app.get('/threads/summary', checkAuth, function(req, res, next){
-        api.threads.getThreads(_(req.route.params || {}).extend({
+        api.threads.getThreads({
             summary: true
-        }), function(err, threads){
+        }, function(err, threads){
             if(err){
                 return next(err);
             }
@@ -119,9 +119,9 @@ module.exports = function routing(){
         });
     });
 
-    app.get('/thread/:threadId', checkAuth, function(req, res, next){
+    app.get('/thread/:threadUrlName', checkAuth, function(req, res, next){
         api.threads.getThreads({
-            _id: req.route.params.threadId
+            urlname: encodeURIComponent(req.route.params.threadUrlName)
         }, function(err, thread){
             if(err){
                 return next(err);
@@ -130,10 +130,10 @@ module.exports = function routing(){
         });
     });
 
-    app.get('/thread/:threadId/complete', checkAuth, function(req, res, next){
-        api.threads.getThreadsComplete(_(req.route.params || {}).extend({
-            _id: req.route.params.threadId
-        }), function(err, thread){
+    app.get('/thread/:threadUrlName/complete', checkAuth, function(req, res, next){
+        api.threads.getThreadsComplete({
+            urlname: encodeURIComponent(req.route.params.threadUrlName)
+        }, function(err, thread){
             if(err){
                 return next(err);
             }
@@ -141,11 +141,11 @@ module.exports = function routing(){
         });
     });
 
-    app.get('/thread/:threadId/summary', checkAuth, function(req, res, next){
-        api.threads.getThreads(_(req.route.params || {}).extend({
+    app.get('/thread/:threadUrlName/summary', checkAuth, function(req, res, next){
+        api.threads.getThreads({
             summary: true,
-            _id: req.route.params.threadId
-        }), function(err, thread){
+            urlname: encodeURIComponent(req.route.params.threadUrlName)
+        }, function(err, thread){
             if(err){
                 return next(err);
             }
@@ -164,7 +164,10 @@ module.exports = function routing(){
             content: body.content
         }, function(err, data){
             if(err){
-                return next(err);
+                res.status(500);
+                return res.send({
+                    msg: err.toString()
+                });
             }
             res.send(data);
         });

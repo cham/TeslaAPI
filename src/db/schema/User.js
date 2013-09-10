@@ -1,6 +1,7 @@
 var mongoose = require('mongoose'),
     UserSchema = new mongoose.Schema({
         username: {type: String, index: {unique: true, dropDups: true}},
+        urlname: {type: String, index: {unique: true, dropDups: true}},
         password: String,
         email: {type: String, index: {unique: true, dropDups: true}},
         activated: {type: Boolean, default: true},

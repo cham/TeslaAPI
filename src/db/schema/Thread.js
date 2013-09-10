@@ -1,6 +1,7 @@
 var mongoose = require('mongoose'),
     ThreadSchema = new mongoose.Schema({
         name: String,
+        urlname: {type: String, index: {unique: true, dropDups: true}},
         postedby: String,
         categories: [String],
         created: Date,
