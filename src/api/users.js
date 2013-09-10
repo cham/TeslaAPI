@@ -27,8 +27,15 @@ module.exports = function(db){
             var summary = options.summary;
             delete options.summary;
 
+            if(options.password){
+                options.password = crypto
+                                        .createHash("md5")
+                                        .update(options.password)
+                                        .digest("hex");
+            }
+
             db.user
-                .find()
+                .find(options)
                 .exec(function(err, users){
                     if(err){
                         return done(err);
@@ -45,8 +52,11 @@ module.exports = function(db){
         },
 
         getUser: function(options, done){
+            var summary = options.summary;
+            delete options.summary;
+
             db.user
-                .findOne({username: options.username})
+                .findOne(options)
                 .exec(function(err, user){
                     if(err){
                         return done(err);

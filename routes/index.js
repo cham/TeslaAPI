@@ -17,6 +17,23 @@ module.exports = function routing(){
         next();
     }
 
+    // auth routes
+    app.post('/login', checkAuth, function(req, res, next){
+        api.users.getUsers(_(req.body || {}).extend({
+            summary: true
+        }), function(err, json){
+            if(err){
+                return next(err);
+            }
+            if(json.users.length){
+                res.status(200);
+                return res.send(json.users[0]);
+            }
+            res.status(400);
+            res.send({message: 'Invalid credentials'});
+        });
+    });
+
     // comment routes
     // get
     app.get('/comments', checkAuth, function(req, res, next){
@@ -77,7 +94,7 @@ module.exports = function routing(){
                 return next(err);
             }
             res.send({
-                thread: thread
+                comment: thread
             });
         });
     });
@@ -194,13 +211,13 @@ module.exports = function routing(){
     });
 
     app.get('/user/:userName', checkAuth, function(req, res, next){
-        api.users.getUser({
+        api.users.getUsers({
             username: req.route.params.userName
-        }, function(err, data){
+        }, function(err, users){
             if(err){
                 return next(err);
             }
-            res.send(data);
+            res.send(users[0]);
         });
     });
 
@@ -229,6 +246,7 @@ module.exports = function routing(){
             if(err){
                 return next(err);
             }
+
             res.send(data);
         });
     });

@@ -29,6 +29,7 @@ module.exports = function(db){
 
             db.thread
                 .find(options)
+                .sort('-last_comment_time')
                 .exec(function(err, threads){
                     if(err){
                         return done(err);
@@ -49,6 +50,7 @@ module.exports = function(db){
         getThreadsComplete: function(options, done){
             db.thread
                 .find(options)
+                .sort('-last_comment_time')
                 .populate('comments')
                 .exec(function(err, threads){
                     if(err){
