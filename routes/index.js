@@ -102,7 +102,7 @@ module.exports = function routing(){
     // thread routes
     // get
     app.get('/threads', checkAuth, function(req, res, next){
-        api.threads.getThreads(req.route.params || {}, function(err, threads){
+        api.threads.getThreads(req.query || {}, function(err, threads){
             if(err){
                 return next(err);
             }

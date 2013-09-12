@@ -5,12 +5,16 @@
 
 var _ = require('underscore');
 
+var DEFAULTS = {
+        setsize: 50
+    };
+
 module.exports = {
 
     mapping: {
         'read:threads': function(query){
             query = query || {};
-
+//{ page: '1', size: '50' }
             return query;
         },
         'write:threads': function(query){
@@ -38,12 +42,10 @@ module.exports = {
 
     required: {
         getMissing: function(required, query){
-console.log(query);
             return _(required).reduce(function(memo, val){
                 if(_.isUndefined(query[val])){
                     memo.push(val);
                 }
-console.log(val, query[val], memo);
                 return memo;
             }, []);
         },
@@ -65,11 +67,14 @@ console.log(val, query[val], memo);
 
     buildOptions: function(operationName, options, next){
         var cleanOptions = {},
+            sortBy = options.sortBy || this.sorting[operationName],
             query,
             missingParams;
         
         options = options || {};
-console.log(operationName, options);
+        options.size = parseInt(options.size, 10);
+        options.page = parseInt(options.page, 10);
+
         // build query
         query = this.mapping[operationName](options.query);
         missingParams = this.required[operationName] && this.required[operationName](query);
@@ -79,9 +84,16 @@ console.log(operationName, options);
         }
         cleanOptions.query = query;
 
-        cleanOptions.sortBy = options.sortBy || this.sorting[operationName];
-        if(!cleanOptions.sortBy){
-            delete cleanOptions.sortBy;
+        // query modifiers
+        if(sortBy){
+            cleanOptions.sortBy = sortBy;
+        }
+
+        if(_.isNumber(options.size)){
+            cleanOptions.limit = options.size;
+        }
+        if(_.isNumber(options.page)){
+            cleanOptions.skip = (options.page - 1) * (cleanOptions.limit || DEFAULTS.setsize);
         }
 
         next(null, cleanOptions);
