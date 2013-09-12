@@ -86,9 +86,11 @@ module.exports = function routing(){
         var body = req.body;
 
         api.threads.postComment({
-            postedby: body.postedby,
-            content: body.content,
-            threadid: body.threadid
+            query: {
+                postedby: body.postedby,
+                content: body.content,
+                threadid: body.threadid
+            }
         }, function(err, thread){
             if(err){
                 return next(err);
@@ -211,7 +213,9 @@ module.exports = function routing(){
     });
 
     app.get('/users/summary', checkAuth, function(req, res, next){
-        api.users.getUsers({summary: true}, function(err, data){
+        api.users.getUsers(_(req.route.params || {}).extend({
+            summary: true
+        }), function(err, data){
             if(err){
                 return next(err);
             }
@@ -221,18 +225,22 @@ module.exports = function routing(){
 
     app.get('/user/:userName', checkAuth, function(req, res, next){
         api.users.getUsers({
-            username: req.route.params.userName
-        }, function(err, users){
+            query: {
+                username: req.route.params.userName
+            }
+        }, function(err, json){
             if(err){
                 return next(err);
             }
-            res.send(users[0]);
+            res.send(json.users[0]);
         });
     });
 
     app.get('/user/:userName/summary', checkAuth, function(req, res, next){
         api.users.getUser({
-            username: req.route.params.userName,
+            query: {
+                username: req.route.params.userName
+            },
             summary: true
         }, function(err, data){
             if(err){
@@ -247,10 +255,12 @@ module.exports = function routing(){
         var body = req.body;
 
         api.users.addUser({
-            username: body.username,
-            password: body.password,
-            email: body.email,
-            ip: req.connection.remoteAddress
+            query: {
+                username: body.username,
+                password: body.password,
+                email: body.email,
+                ip: req.connection.remoteAddress
+            }
         }, function(err, data){
             if(err){
                 return next(err);

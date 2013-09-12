@@ -2,7 +2,7 @@
  * Tesla api methods for accessing and manipulating user data
  */
 var _ = require('underscore'),
-    crypto = require('crypto');
+    queryBuilder = require('./queryBuilder');
 
 function summaryMapping(user){
     return {
@@ -24,79 +24,62 @@ function summaryMapping(user){
 module.exports = function(db){
     return {
         getUsers: function(options, done){
-            var summary = options.summary;
-            delete options.summary;
-
-            if(options.password){
-                options.password = crypto
-                                    .createHash("md5")
-                                    .update(options.password)
-                                    .digest("hex");
-            }
-
-            db.user
-                .find(options)
-                .exec(function(err, users){
-                    if(err){
-                        return done(err);
-                    }
-
-                    done(null,{
-                        'users':
-                            summary ?
-                                _(users).map(summaryMapping)
-                                :
-                                users
-                    });
-                });
-        },
-
-        getUser: function(options, done){
-            var summary = options.summary;
-            delete options.summary;
-
-            db.user
-                .findOne(options)
-                .exec(function(err, user){
-                    if(err){
-                        return done(err);
-                    }
-
-                    if(!user || !user.activated || user.banned){
-                        return done(null,{});
-                    }
-
-                    done(null,
-                        options.summary ?
-                            summaryMapping(user)
-                            :
-                            user
-                    );
-                });
-        },
-
-        addUser: function(options, done){
-            var now = new Date(),
-                user = new db.user({
-                    username: options.username,
-                    urlname: encodeURIComponent(options.username),
-                    password: crypto
-                                .createHash("md5")
-                                .update(options.password)
-                                .digest("hex"),
-                    email: options.email,
-                    last_ip: options.ip,
-                    last_login: now,
-                    created: now,
-                    modified: now
-                });
-
-            user.save(function(err){
+            queryBuilder.buildOptions('read:users', options, function(err, cleanOptions){
                 if(err){
                     return done(err);
                 }
 
-                return done(null, user);
+                db.user
+                    .find(cleanOptions.query)
+                    .exec(function(err, users){
+                        if(err){
+                            return done(err);
+                        }
+
+                        done(null,{
+                            users: cleanOptions.summary ? _(users).map(summaryMapping) : users
+                        });
+                    });
+            });
+        },
+
+        getUser: function(options, done){
+            queryBuilder.buildOptions('read:users', options, function(err, cleanOptions){
+                if(err){
+                    return done(err);
+                }
+
+                db.user
+                    .findOne(cleanOptions.query)
+                    .exec(function(err, user){
+                        if(err){
+                            return done(err);
+                        }
+
+                        if(!user || !user.activated || user.banned){
+                            return done(null,{});
+                        }
+
+                        done(null, cleanOptions.summary ? summaryMapping(user) : user);
+                    });
+            });
+        },
+
+        addUser: function(options, done){
+            queryBuilder.buildOptions('write:users', options, function(err, cleanOptions){
+                if(err){
+                    return done(err);
+                }
+
+                var user = new db.user(cleanOptions.query);
+
+                user.save(function(err){
+                    if(err){
+                        return done(err);
+                    }
+
+                    return done(null, user);
+                });
             });
         },
 

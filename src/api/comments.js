@@ -1,7 +1,8 @@
 /*
  * Tesla api methods for accessing and manipulating comment data
  */
-var _ = require('underscore');
+var _ = require('underscore'),
+    queryBuilder = require('./queryBuilder');
 
 function summaryMapping(comment){
     return {
@@ -15,45 +16,38 @@ function summaryMapping(comment){
 module.exports = function(db){
     return {
         getComments: function(options, done){
-            var summary = !!options.summary;
-            delete options.summary;
-
-            db.comment
-                .find(options)
-                .exec(function(err, comments){
-                    if(err){
-                        return done(err);
-                    }
-                    if(!comments){
-                        return done(null,{});
-                    }
-
-                    done(null,
-                        summary ?
-                            _(comments).map(summaryMapping)
-                            :
-                            comments
-                    );
-                });
-        },
-
-        postComment: function(options, done){
-            var now = new Date(),
-                comment = new db.comment({
-                    postedby: options.postedby,
-                    created: now,
-                    edit_percent: 0,
-                    points: 0,
-                    content: options.content
-                }),
-                that = this;
-
-            comment.save(function(err){
+            queryBuilder.buildOptions('read:comments', options, function(err, cleanOptions){
                 if(err){
                     return done(err);
                 }
 
-                return done(null, comment);
+                db.comment
+                    .find(cleanOptions.query)
+                    .exec(function(err, comments){
+                        if(err){
+                            return done(err);
+                        }
+                        if(!comments){
+                            return done(null,{});
+                        }
+
+                        done(null, cleanOptions.summary ? _(comments).map(summaryMapping) : comments);
+                    });
+            });
+        },
+
+        postComment: function(options, done){
+            queryBuilder.buildOptions('write:comments', options, function(err, cleanOptions){
+                var comment = new db.comment(cleanOptions.query),
+                    that = this;
+
+                comment.save(function(err){
+                    if(err){
+                        return done(err);
+                    }
+
+                    return done(null, comment);
+                });
             });
         },
     };

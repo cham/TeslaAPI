@@ -149,13 +149,17 @@ module.exports = function(db){
                 }
 
                 commentsApi.postComment({
-                    postedby: cleanOptions.query.postedby,
-                    content: cleanOptions.query.content
+                    query: {
+                        postedby: cleanOptions.query.postedby,
+                        content: cleanOptions.query.content
+                    }
                 }, function(err, comment){
                     if(err){
                         return done(err);
                     }
 
+                    thread.last_comment_by = cleanOptions.query.postedby;
+                    thread.last_comment_time = new Date();
                     thread.comments.push(comment._id);
                     thread.save(function(err){
                         if(err){
@@ -174,7 +178,7 @@ module.exports = function(db){
 
             this.getThread({
                 query: {
-                    _id: options.threadid
+                    _id: options.query.threadid
                 }
             }, function(err, thread){
                 if(err){
@@ -190,8 +194,8 @@ module.exports = function(db){
 
                 return that.postCommentInThread({
                     query: {
-                        postedby: options.postedby,
-                        content: options.content
+                        postedby: options.query.postedby,
+                        content: options.query.content
                     },
                     thread: thread
                 }, done);

@@ -3,7 +3,8 @@
  * builds db queries for api methods
  */
 
-var _ = require('underscore');
+var _ = require('underscore'),
+    crypto = require('crypto');
 
 var DEFAULTS = {
         setsize: 50,
@@ -23,12 +24,11 @@ module.exports = {
     mapping: {
         'read:threads': function(query){
             query = query || {};
-//{ page: '1', size: '50' }
+
             return query;
         },
         'write:threads': function(query){
             var now = new Date();
-
             query = query || {};
 
             return {
@@ -42,10 +42,54 @@ module.exports = {
                 comments: []
             };
         },
-        'write:comments': function(query){
+        'read:comments': function(query){
             query = query || {};
 
             return query;
+        },
+        'write:comments': function(query){
+            var now = new Date();
+            query = query || {};
+
+            return {
+                postedby: query.postedby,
+                content: query.content,
+                created: now,
+                edit_percent: 0,
+                points: 0
+            };
+        },
+        'read:users': function(query){
+            query = query || {};
+
+
+            if(query.password){
+                query.password = crypto
+                                    .createHash("md5")
+                                    .update(query.password)
+                                    .digest("hex");
+            }
+
+            return query;
+        },
+        'write:users': function(query){
+            var now = new Date();
+            query = query || {};
+
+            return {
+                username: query.username,
+                urlname: encodeURIComponent(query.username),
+                password: crypto
+                            .createHash("md5")
+                            .update(query.password)
+                            .digest("hex"),
+                email: query.email,
+                ip: query.ip,
+                last_ip: query.ip,
+                last_login: now,
+                created: now,
+                modified: now
+            };
         }
     },
 
@@ -65,6 +109,11 @@ module.exports = {
         },
         'write:comments': function(query){
             var required = ['postedby', 'content'];
+
+            return this.getMissing(required, query);
+        },
+        'write:users': function(query){
+            var required = ['username', 'password', 'email', 'ip'];
 
             return this.getMissing(required, query);
         }
@@ -103,7 +152,7 @@ module.exports = {
             cleanOptions.limit = DEFAULTS.setsize;
         }
         cleanOptions.skip = Math.max(0, (options.page - 1) * (cleanOptions.limit || DEFAULTS.setsize));
-        
+
         cleanOptions.summary = !!options.summary;
         cleanOptions.populate = !!options.populate;
 
