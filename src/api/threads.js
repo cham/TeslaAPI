@@ -30,10 +30,70 @@ module.exports = function(db){
                     return done(err);
                 }
 
-                db.thread
-                    .find(cleanOptions.query)
-                    .sort(cleanOptions.sortBy)
-                    .exec(function(err, threads){
+                var totaldocs,
+                    query = db.thread.find(cleanOptions.query);
+
+                _(query).clone().count(function (err, count) {
+                    if (err) return done(err);
+                    totaldocs = count;
+                });
+
+                if(cleanOptions.sortBy){
+                    query.sort(cleanOptions.sortBy);
+                }
+                if(cleanOptions.skip){
+                    query.skip(cleanOptions.skip);
+                }
+                if(cleanOptions.limit){
+                    query.limit(cleanOptions.limit);
+                }
+
+                // population only below here
+                if(cleanOptions.populate){
+                    query.populate('comments');
+                }
+
+                query.exec(function(err, threads){
+                    if(err){
+                        return done(err);
+                    }
+                    if(!threads || !threads.length){
+                        return done(null, []);
+                    }
+
+                    done(null,
+                        {
+                            threads: (cleanOptions.summary ? _(threads).map(summaryMapping) : threads),
+                            skip: cleanOptions.skip,
+                            limit: cleanOptions.limit,
+                            totaldocs: totaldocs
+                        }
+                    );
+                });
+            });
+        },
+
+        // retrieves a single document, sorting is disabled, and paging is applied to the comments
+        getThread: function(options, done){
+            queryBuilder.buildOptions('read:threads', options, function(err, cleanOptions){
+                if(err){
+                    return done(err);
+                }
+
+                var query = db.thread
+                    .find(cleanOptions.query) //findOne not working here?
+                    .limit(1);
+
+                if(cleanOptions.skip || cleanOptions.limit){
+                    query.slice('comments', [cleanOptions.skip || 0, cleanOptions.limit]);
+                }
+
+                // population only below here
+                if(cleanOptions.populate){
+                    query.populate('comments');
+                }
+
+                query.exec(function(err, threads){
                         if(err){
                             return done(err);
                         }
@@ -47,29 +107,6 @@ module.exports = function(db){
                                 :
                                 threads
                         );
-                    });
-            });
-        },
-
-        getThreadsComplete: function(options, done){
-            queryBuilder.buildOptions('read:threads', options, function(err, cleanOptions){
-                if(err){
-                    return done(err);
-                }
-
-                db.thread
-                    .find(cleanOptions.query)
-                    .sort(cleanOptions.sortBy)
-                    .populate('comments')
-                    .exec(function(err, threads){
-                        if(err){
-                            return done(err);
-                        }
-                        if(!threads || !threads.length){
-                            return done(null, []);
-                        }
-
-                        done(null, threads);
                     });
             });
         },

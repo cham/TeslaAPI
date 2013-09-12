@@ -1,5 +1,5 @@
 var mongoose = require('mongoose'),
-    ThreadSchema = new mongoose.Schema({
+    PreferenceSchema = new mongoose.Schema({
         name: String,
         urlname: {type: String, index: {unique: true, dropDups: true}},
         postedby: String,
@@ -13,4 +13,4 @@ var mongoose = require('mongoose'),
         comments: [{type: String, ref: 'Comment'}]
     });
 
-module.exports = ThreadSchema;
+module.exports = PreferenceSchema;

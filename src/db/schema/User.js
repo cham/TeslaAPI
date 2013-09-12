@@ -5,7 +5,7 @@ var mongoose = require('mongoose'),
         password: String,
         email: {type: String, index: {unique: true, dropDups: true}},
         activated: {type: Boolean, default: true},
-        banned: {type: Boolean, default: false},
+        banned: Boolean,
         ban_reason: String,
         last_ip: String,
         last_login: Date,
@@ -18,11 +18,13 @@ var mongoose = require('mongoose'),
         custom_css: String,
         threads_count: {type: Number, default: 0},
         comments_count: {type: Number, default: 0},
-        hide_enemy_posts: {type: Boolean, default: true},
+        hide_enemy_posts: Boolean,
         custom_js: String,
-        hide_ads: {type: Boolean, default: false},
+        hide_ads: Boolean,
         points: {type: Number, default: 0, min: 0},
-        lastpointusage: Date
+        lastpointusage: Date,
+        thread_size: {type: Number, default: 50},
+        comment_size: {type: Number, default: 50}
     });
 
 module.exports = UserSchema;

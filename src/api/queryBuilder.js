@@ -6,8 +6,17 @@
 var _ = require('underscore');
 
 var DEFAULTS = {
-        setsize: 50
+        setsize: 50,
+        pagenum: 1
     };
+
+function parseIntOrDefault(val, def){
+    var n = parseInt(val, 10);
+    if(isNaN(n)){
+        return def;
+    }
+    return n;
+}
 
 module.exports = {
 
@@ -72,8 +81,8 @@ module.exports = {
             missingParams;
         
         options = options || {};
-        options.size = parseInt(options.size, 10);
-        options.page = parseInt(options.page, 10);
+        options.size = parseIntOrDefault(options.size, DEFAULTS.setsize);
+        options.page = parseIntOrDefault(options.page, DEFAULTS.pagenum);
 
         // build query
         query = this.mapping[operationName](options.query);
@@ -89,12 +98,14 @@ module.exports = {
             cleanOptions.sortBy = sortBy;
         }
 
-        if(_.isNumber(options.size)){
-            cleanOptions.limit = options.size;
+        cleanOptions.limit = Math.max(0, options.size);
+        if(cleanOptions.limit === 0){
+            cleanOptions.limit = DEFAULTS.setsize;
         }
-        if(_.isNumber(options.page)){
-            cleanOptions.skip = (options.page - 1) * (cleanOptions.limit || DEFAULTS.setsize);
-        }
+        cleanOptions.skip = Math.max(0, (options.page - 1) * (cleanOptions.limit || DEFAULTS.setsize));
+        
+        cleanOptions.summary = !!options.summary;
+        cleanOptions.populate = !!options.populate;
 
         next(null, cleanOptions);
     }

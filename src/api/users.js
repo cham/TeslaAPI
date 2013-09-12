@@ -29,9 +29,9 @@ module.exports = function(db){
 
             if(options.password){
                 options.password = crypto
-                                        .createHash("md5")
-                                        .update(options.password)
-                                        .digest("hex");
+                                    .createHash("md5")
+                                    .update(options.password)
+                                    .digest("hex");
             }
 
             db.user

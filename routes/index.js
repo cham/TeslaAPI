@@ -102,18 +102,18 @@ module.exports = function routing(){
     // thread routes
     // get
     app.get('/threads', checkAuth, function(req, res, next){
-        api.threads.getThreads(req.query || {}, function(err, threads){
+        api.threads.getThreads(req.query || {}, function(err, json){
             if(err){
                 return next(err);
             }
-            res.send({
-                threads: threads
-            });
+            res.send(json);
         });
     });
 
     app.get('/threads/complete', checkAuth, function(req, res, next){
-        api.threads.getThreadsComplete(req.route.params || {}, function(err, threads){
+        api.threads.getThreads(_(req.query || {}).extend({
+            populate: true
+        }), function(err, threads){
             if(err){
                 return next(err);
             }
@@ -124,9 +124,9 @@ module.exports = function routing(){
     });
 
     app.get('/threads/summary', checkAuth, function(req, res, next){
-        api.threads.getThreads({
+        api.threads.getThreads(_(req.query || {}).extend({
             summary: true
-        }, function(err, threads){
+        }), function(err, threads){
             if(err){
                 return next(err);
             }
@@ -137,11 +137,11 @@ module.exports = function routing(){
     });
 
     app.get('/thread/:threadUrlName', checkAuth, function(req, res, next){
-        api.threads.getThreads({
+        api.threads.getThread(_(req.query || {}).extend({
             query: {
                 urlname: encodeURIComponent(req.route.params.threadUrlName)
             }
-        }, function(err, thread){
+        }), function(err, thread){
             if(err){
                 return next(err);
             }
@@ -150,11 +150,12 @@ module.exports = function routing(){
     });
 
     app.get('/thread/:threadUrlName/complete', checkAuth, function(req, res, next){
-        api.threads.getThreadsComplete({
+        api.threads.getThread(_(req.query || {}).extend({
+            populate: true,
             query: {
                 urlname: encodeURIComponent(req.route.params.threadUrlName)
             }
-        }, function(err, thread){
+        }), function(err, thread){
             if(err){
                 return next(err);
             }
@@ -163,7 +164,7 @@ module.exports = function routing(){
     });
 
     app.get('/thread/:threadUrlName/summary', checkAuth, function(req, res, next){
-        api.threads.getThreads({
+        api.threads.getThread({
             summary: true,
             query: {
                 urlname: encodeURIComponent(req.route.params.threadUrlName)
