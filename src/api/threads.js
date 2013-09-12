@@ -60,10 +60,13 @@ module.exports = function(db){
                     if(!threads || !threads.length){
                         return done(null, []);
                     }
+                    if(cleanOptions.summary){
+                        threads = _(threads).map(summaryMapping);
+                    }
 
                     done(null,
                         {
-                            threads: (cleanOptions.summary ? _(threads).map(summaryMapping) : threads),
+                            threads: threads,
                             skip: cleanOptions.skip,
                             limit: cleanOptions.limit,
                             totaldocs: totaldocs
@@ -94,20 +97,19 @@ module.exports = function(db){
                 }
 
                 query.exec(function(err, threads){
-                        if(err){
-                            return done(err);
-                        }
-                        if(!threads || !threads.length){
-                            return done(null, []);
-                        }
+                    if(err){
+                        return done(err);
+                    }
 
-                        done(null,
-                            cleanOptions.summary ?
-                                _(threads).map(summaryMapping)
-                                :
-                                threads
-                        );
-                    });
+                    if(!threads || !threads.length){
+                        return done(null, []);
+                    }
+                    if(cleanOptions.summary){
+                        threads = _(threads).map(summaryMapping);
+                    }
+
+                    done(null, threads);
+                });
             });
         },
 
@@ -126,19 +128,25 @@ module.exports = function(db){
                         postedby: options.query.postedby,
                         content: options.query.content
                     },
-                    threadDoc: thread,
+                    thread: thread,
                     returnthread: true
                 }, done);
             });
         },
 
         postCommentInThread: function(options, done){
+            var thread;
+
+            options = options || {};
+            if(!options.thread){
+                done(new Error('thread is required'));
+            }
+            thread = options.thread;
+
             queryBuilder.buildOptions('write:comments', options, function(err, cleanOptions){
                 if(err){
                     return done(err);
                 }
-
-                var threadDoc = options.threadDoc;
 
                 commentsApi.postComment({
                     postedby: cleanOptions.query.postedby,
@@ -148,13 +156,13 @@ module.exports = function(db){
                         return done(err);
                     }
 
-                    threadDoc.comments.push(comment._id);
-                    threadDoc.save(function(err){
+                    thread.comments.push(comment._id);
+                    thread.save(function(err){
                         if(err){
                             return done(err);
                         }
 
-                        return done(null, options.returnthread ? options.threadDoc : comment);
+                        return done(null, options.returnthread ? thread : comment);
                     });
                 });
             });
@@ -164,22 +172,28 @@ module.exports = function(db){
             var thread,
                 that = this;
 
-            this.getThreads({
+            this.getThread({
                 query: {
                     _id: options.threadid
                 }
-            }, function(err, threads){
+            }, function(err, thread){
                 if(err){
                     return done(err);
                 }
-                if(!threads || !threads.length){
+
+                if(!thread){
                     return done(new Error('thread not found'));
+                }
+                if(thread.length){
+                    thread = thread[0];
                 }
 
                 return that.postCommentInThread({
-                    postedby: options.postedby,
-                    content: options.content,
-                    threadDoc: threads[0]
+                    query: {
+                        postedby: options.postedby,
+                        content: options.content
+                    },
+                    thread: thread
                 }, done);
             });
         }
