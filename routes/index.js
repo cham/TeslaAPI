@@ -138,7 +138,9 @@ module.exports = function routing(){
 
     app.get('/thread/:threadUrlName', checkAuth, function(req, res, next){
         api.threads.getThreads({
-            urlname: encodeURIComponent(req.route.params.threadUrlName)
+            query: {
+                urlname: encodeURIComponent(req.route.params.threadUrlName)
+            }
         }, function(err, thread){
             if(err){
                 return next(err);
@@ -149,7 +151,9 @@ module.exports = function routing(){
 
     app.get('/thread/:threadUrlName/complete', checkAuth, function(req, res, next){
         api.threads.getThreadsComplete({
-            urlname: encodeURIComponent(req.route.params.threadUrlName)
+            query: {
+                urlname: encodeURIComponent(req.route.params.threadUrlName)
+            }
         }, function(err, thread){
             if(err){
                 return next(err);
@@ -161,7 +165,9 @@ module.exports = function routing(){
     app.get('/thread/:threadUrlName/summary', checkAuth, function(req, res, next){
         api.threads.getThreads({
             summary: true,
-            urlname: encodeURIComponent(req.route.params.threadUrlName)
+            query: {
+                urlname: encodeURIComponent(req.route.params.threadUrlName)
+            }
         }, function(err, thread){
             if(err){
                 return next(err);
@@ -175,10 +181,12 @@ module.exports = function routing(){
         var body = req.body;
 
         api.threads.postThread({
-            name: body.name,
-            postedby: body.postedby,
-            categories: body.categories,
-            content: body.content
+            query: {
+                name: body.name,
+                postedby: body.postedby,
+                categories: body.categories,
+                content: body.content
+            }
         }, function(err, data){
             if(err){
                 res.status(500);
