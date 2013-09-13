@@ -96,7 +96,7 @@ module.exports = function routing(){
     // post
     app.post('/comment', checkAuth, function(req, res, next){
         var body = req.body;
-console.log(body);
+
         api.threads.postComment({
             query: {
                 postedby: body.postedby,
