@@ -138,7 +138,7 @@ module.exports = function(db){
             });
         },
 
-        getParticipated: function(options, done){
+        getUserList: function(options, done){
             var that = this,
                 summary = !!options.summary; // pass to getThreads only
 
@@ -151,7 +151,7 @@ module.exports = function(db){
 
                 return that.getThreads({
                     query: {
-                        _id: { $in: user.participated }
+                        _id: { $in: user[options.listkey] }
                     },
                     summary: summary
                 }, done);

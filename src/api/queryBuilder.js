@@ -110,7 +110,9 @@ module.exports = {
                 last_login: now,
                 created: now,
                 modified: now,
-                participated: []
+                participated: [],
+                favourites: [],
+                hidden: []
             });
         }
     },

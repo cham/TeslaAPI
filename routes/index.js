@@ -17,26 +17,10 @@ module.exports = function routing(){
         next();
     }
 
-    // auth routes
-    app.post('/login', checkAuth, function(req, res, next){
-        api.users.getUsers({
-            query: req.body,
-            summary: true
-        }, function(err, json){
-            if(err){
-                return next(err);
-            }
-            if(json.users.length){
-                res.status(200);
-                return res.send(json.users[0]);
-            }
-            res.status(400);
-            res.send({message: 'Invalid credentials'});
-        });
-    });
-
+    /*
+     * get
+     */
     // comment routes
-    // get
     app.get('/comments', checkAuth, function(req, res, next){
         api.comments.getComments(req.route.params || {}, function(err, data){
             if(err){
@@ -90,26 +74,6 @@ module.exports = function routing(){
                 return next(err);
             }
             res.send(comment[0]);
-        });
-    });
-
-    // post
-    app.post('/comment', checkAuth, function(req, res, next){
-        var body = req.body;
-
-        api.threads.postComment({
-            query: {
-                postedby: body.postedby,
-                content: body.content,
-                threadid: body.threadid
-            }
-        }, function(err, thread){
-            if(err){
-                return next(err);
-            }
-            res.send({
-                comment: thread
-            });
         });
     });
 
@@ -229,30 +193,7 @@ module.exports = function routing(){
         });
     });
 
-    // post
-    app.post('/thread', checkAuth, function(req, res, next){
-        var body = req.body;
-
-        api.threads.postThread({
-            query: {
-                name: body.name,
-                postedby: body.postedby,
-                categories: body.categories,
-                content: body.content
-            }
-        }, function(err, data){
-            if(err){
-                res.status(500);
-                return res.send({
-                    msg: err.toString()
-                });
-            }
-            res.send(data);
-        });
-    });
-
-    // user routes
-    // get
+    // get users
     app.get('/users', checkAuth, function(req, res, next){
         api.users.getUsers(req.route.params || {}, function(err, data){
             if(err){
@@ -300,22 +241,70 @@ module.exports = function routing(){
         });
     });
 
+    // participated, favourites, hidden
     app.get('/user/:username/participated', checkAuth, function(req, res, next){
-        api.threads.getParticipated({
+        api.threads.getUserList({
             query: {
                 username: req.route.params.username
-            }
+            },
+            listkey: 'participated'
         }, function(err, json){
             if(err) return next(err);
             res.send(json);
         });
     });
-
-    app.get('/user/:username/participated/summary', checkAuth, function(req, res, next){
-        api.threads.getParticipated({
+    app.get('/user/:username/favourites', checkAuth, function(req, res, next){
+        api.threads.getUserList({
             query: {
                 username: req.route.params.username
             },
+            listkey: 'favourites'
+        }, function(err, json){
+            if(err) return next(err);
+            res.send(json);
+        });
+    });
+    app.get('/user/:username/hidden', checkAuth, function(req, res, next){
+        api.threads.getUserList({
+            query: {
+                username: req.route.params.username
+            },
+            listkey: 'hidden'
+        }, function(err, json){
+            if(err) return next(err);
+            res.send(json);
+        });
+    });
+    app.get('/user/:username/participated/summary', checkAuth, function(req, res, next){
+        api.threads.getUserList({
+            query: {
+                username: req.route.params.username
+            },
+            listkey: 'participated',
+            summary: true
+        }, function(err, json){
+            if(err) return next(err);
+            res.send(json);
+        });
+    });
+    app.get('/user/:username/favourites/summary', checkAuth, function(req, res, next){
+        api.threads.getUserList({
+            query: {
+                username: req.route.params.username
+            },
+            listkey: 'favourites',
+            summary: true
+        }, function(err, json){
+            if(err) return next(err);
+            res.send(json);
+        });
+    });
+    app.get('/user/:username/hidden/summary', checkAuth, function(req, res, next){
+        api.threads.getUserList({
+            query: {
+                username: req.route.params.username
+            },
+            listkey: 'hidden',
             summary: true
         }, function(err, json){
             if(err) return next(err);
@@ -323,7 +312,12 @@ module.exports = function routing(){
         });
     });
 
-    // post
+
+
+    /*
+     * post
+     */
+    // new user
     app.post('/user', checkAuth, function(req, res, next){
         var body = req.body;
 
@@ -343,7 +337,71 @@ module.exports = function routing(){
         });
     });
 
-    // delete
+    // new thread
+    app.post('/thread', checkAuth, function(req, res, next){
+        var body = req.body;
+
+        api.threads.postThread({
+            query: {
+                name: body.name,
+                postedby: body.postedby,
+                categories: body.categories,
+                content: body.content
+            }
+        }, function(err, data){
+            if(err){
+                res.status(500);
+                return res.send({
+                    msg: err.toString()
+                });
+            }
+            res.send(data);
+        });
+    });
+
+    // login
+    app.post('/login', checkAuth, function(req, res, next){
+        api.users.getUsers({
+            query: req.body,
+            summary: true
+        }, function(err, json){
+            if(err){
+                return next(err);
+            }
+            if(json.users.length){
+                res.status(200);
+                return res.send(json.users[0]);
+            }
+            res.status(400);
+            res.send({message: 'Invalid credentials'});
+        });
+    });
+
+    // comment
+    app.post('/comment', checkAuth, function(req, res, next){
+        var body = req.body;
+
+        api.threads.postComment({
+            query: {
+                postedby: body.postedby,
+                content: body.content,
+                threadid: body.threadid
+            }
+        }, function(err, thread){
+            if(err){
+                return next(err);
+            }
+            res.send({
+                comment: thread
+            });
+        });
+    });
+
+
+    /*
+     * delete
+     */
+    // user
     app.delete('/users', checkAuth, function(req, res, next){
         api.users.deleteAllUsers(function(err){
             if(err){
