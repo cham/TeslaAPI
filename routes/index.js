@@ -281,6 +281,29 @@ module.exports = function routing(){
         });
     });
 
+    app.get('/user/:username/participated', checkAuth, function(req, res, next){
+        api.threads.getParticipated({
+            query: {
+                username: req.route.params.username
+            }
+        }, function(err, json){
+            if(err) return next(err);
+            res.send(json);
+        });
+    });
+
+    app.get('/user/:username/participated/summary', checkAuth, function(req, res, next){
+        api.threads.getParticipated({
+            query: {
+                username: req.route.params.username
+            },
+            summary: true
+        }, function(err, json){
+            if(err) return next(err);
+            res.send(json);
+        });
+    });
+
     // post
     app.post('/user', checkAuth, function(req, res, next){
         var body = req.body;

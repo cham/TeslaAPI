@@ -135,8 +135,26 @@ module.exports = function(db){
                             });
                     });
                 });
+            });
+        },
 
-                
+        getParticipated: function(options, done){
+            var that = this,
+                summary = !!options.summary; // pass to getThreads only
+
+            delete options.summary;
+
+            usersApi.getUser(options, function(err, user){
+                if(err) return done(err);
+
+                if(!user) return done(new Error('user not found'));
+
+                return that.getThreads({
+                    query: {
+                        _id: { $in: user.participated }
+                    },
+                    summary: summary
+                }, done);
             });
         },
 

@@ -88,7 +88,10 @@ module.exports = {
                                     .digest("hex");
             }
 
-            return this.clean(query);
+            return this.clean({
+                username: query.username,
+                password: query.password
+            });
         },
         'write:users': function(query){
             var now = new Date();
