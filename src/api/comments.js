@@ -21,18 +21,29 @@ module.exports = function(db){
                     return done(err);
                 }
 
-                db.comment
-                    .find(cleanOptions.query)
-                    .exec(function(err, comments){
-                        if(err){
-                            return done(err);
-                        }
-                        if(!comments){
-                            return done(null,{});
-                        }
+                var query = db.comment
+                    .find(cleanOptions.query);
 
-                        done(null, cleanOptions.summary ? _(comments).map(summaryMapping) : comments);
+                if(cleanOptions.countonly){
+                    query.count(function (err, count) {
+                        if (err) return done(err);
+                        
+                        done(null, {
+                            totaldocs: count
+                        });
                     });
+                    return;
+                }
+                
+                query.exec(function(err, comments){
+                    if(err) return done(err);
+
+                    if(!comments){
+                        return done(null,{});
+                    }
+
+                    done(null, cleanOptions.summary ? _(comments).map(summaryMapping) : comments);
+                });
             });
         },
 

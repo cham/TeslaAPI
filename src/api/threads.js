@@ -13,7 +13,7 @@ function summaryMapping(thread){
         name: thread.name,
         urlname: thread.urlname,
         postedby: thread.postedby,
-        comments: thread.comments,
+        comments: {length: thread.comments.length},
         deleted: thread.deleted,
         closed: thread.closed,
         nsfw: thread.nsfw,
@@ -32,6 +32,17 @@ module.exports = function(db){
 
                 var totaldocs,
                     query = db.thread.find(cleanOptions.query);
+
+                if(cleanOptions.countonly){
+                    query.count(function (err, count) {
+                        if (err) return done(err);
+                        
+                        done(null, {
+                            totaldocs: count
+                        });
+                    });
+                    return;
+                }
 
                 _(query).clone().count(function (err, count) {
                     if (err) return done(err);
@@ -83,33 +94,46 @@ module.exports = function(db){
                     return done(err);
                 }
 
-                var query = db.thread
+                var totaldocs = 0,
+                    query = db.thread
                     .find(cleanOptions.query) //findOne not working here?
                     .limit(1);
 
-                if(cleanOptions.skip || cleanOptions.limit){
-                    query.slice('comments', [cleanOptions.skip || 0, cleanOptions.limit]);
-                }
-
-                // population only below here
-                if(cleanOptions.populate){
-                    query.populate('comments');
-                }
-
-                query.exec(function(err, threads){
-                    if(err){
-                        return done(err);
-                    }
-
+                _(query).clone().exec(function(err, threads){
+                    if(err) return done(err);
                     if(!threads || !threads.length){
                         return done(null, []);
                     }
-                    if(cleanOptions.summary){
-                        threads = _(threads).map(summaryMapping);
+
+                    totaldocs = threads[0].comments.length;
+
+                    if(cleanOptions.skip || cleanOptions.limit){
+                        query.slice('comments', [cleanOptions.skip || 0, cleanOptions.limit]);
                     }
 
-                    done(null, threads);
+                    // population only below here
+                    if(cleanOptions.populate){
+                        query.populate('comments');
+                    }
+
+                    query.exec(function(err, threads){
+                        if(err) return done(err);
+
+                        if(cleanOptions.summary){
+                            threads = _(threads).map(summaryMapping);
+                        }
+
+                        done(null,
+                            {
+                                threads: threads,
+                                skip: cleanOptions.skip,
+                                limit: cleanOptions.limit,
+                                totaldocs: totaldocs
+                            });
+                    });
                 });
+
+                
             });
         },
 
@@ -180,17 +204,15 @@ module.exports = function(db){
                 query: {
                     _id: options.query.threadid
                 }
-            }, function(err, thread){
+            }, function(err, json){
                 if(err){
                     return done(err);
                 }
 
-                if(!thread){
+                if(!json.threads || !json.threads.length){
                     return done(new Error('thread not found'));
                 }
-                if(thread.length){
-                    thread = thread[0];
-                }
+                thread = json.threads[0];
 
                 return that.postCommentInThread({
                     query: {

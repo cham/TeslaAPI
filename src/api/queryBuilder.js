@@ -155,6 +155,7 @@ module.exports = {
 
         cleanOptions.summary = !!options.summary;
         cleanOptions.populate = !!options.populate;
+        cleanOptions.countonly = !!options.countonly;
 
         next(null, cleanOptions);
     }

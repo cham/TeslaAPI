@@ -45,6 +45,17 @@ module.exports = function routing(){
         });
     });
 
+    app.get('/comments/count', checkAuth, function(req, res, next){
+        api.comments.getComments(_(req.route.params || {}).extend({
+            countonly: true
+        }), function(err, data){
+            if(err){
+                return next(err);
+            }
+            res.send(data);
+        });
+    });
+
     app.get('/comments/summary', checkAuth, function(req, res, next){
         api.comments.getComments(_(req.route.params || {}).extend({
             summary: true
@@ -115,26 +126,33 @@ module.exports = function routing(){
     app.get('/threads/complete', checkAuth, function(req, res, next){
         api.threads.getThreads(_(req.query || {}).extend({
             populate: true
-        }), function(err, threads){
+        }), function(err, json){
             if(err){
                 return next(err);
             }
-            res.send({
-                threads: threads
-            });
+            res.send(json);
         });
     });
 
     app.get('/threads/summary', checkAuth, function(req, res, next){
         api.threads.getThreads(_(req.query || {}).extend({
             summary: true
-        }), function(err, threads){
+        }), function(err, json){
             if(err){
                 return next(err);
             }
-            res.send({
-                threads: threads
-            });
+            res.send(json);
+        });
+    });
+
+    app.get('/threads/count', checkAuth, function(req, res, next){
+        api.threads.getThreads(_(req.query || {}).extend({
+            countonly: true
+        }), function(err, data){
+            if(err){
+                return next(err);
+            }
+            res.send(data);
         });
     });
 
@@ -143,11 +161,11 @@ module.exports = function routing(){
             query: {
                 urlname: encodeURIComponent(req.route.params.threadUrlName)
             }
-        }), function(err, thread){
+        }), function(err, json){
             if(err){
                 return next(err);
             }
-            res.send(thread[0]);
+            res.send(json);
         });
     });
 
@@ -157,11 +175,11 @@ module.exports = function routing(){
             query: {
                 urlname: encodeURIComponent(req.route.params.threadUrlName)
             }
-        }), function(err, thread){
+        }), function(err, json){
             if(err){
                 return next(err);
             }
-            res.send(thread[0]);
+            res.send(json);
         });
     });
 
@@ -171,11 +189,11 @@ module.exports = function routing(){
             query: {
                 urlname: encodeURIComponent(req.route.params.threadUrlName)
             }
-        }, function(err, thread){
+        }, function(err, json){
             if(err){
                 return next(err);
             }
-            res.send(thread[0]);
+            res.send(json);
         });
     });
 
