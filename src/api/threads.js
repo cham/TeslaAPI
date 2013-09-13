@@ -201,11 +201,14 @@ module.exports = function(db){
                     thread.last_comment_by = cleanOptions.query.postedby;
                     thread.last_comment_time = new Date();
                     thread.comments.push(comment._id);
-                    user.participated.push(thread._id);
+
+                    if(user.participated.indexOf(thread._id) === -1){
+                        user.participated.push(thread._id);
+                    }
 
                     user.save(function(err){
                         if(err) return done(err);
-                        
+
                         thread.save(function(err){
                             if(err) return done(err);
 

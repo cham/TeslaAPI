@@ -106,7 +106,8 @@ module.exports = {
                 last_ip: query.ip,
                 last_login: now,
                 created: now,
-                modified: now
+                modified: now,
+                participated: []
             });
         }
     },
