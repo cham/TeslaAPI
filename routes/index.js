@@ -19,9 +19,10 @@ module.exports = function routing(){
 
     // auth routes
     app.post('/login', checkAuth, function(req, res, next){
-        api.users.getUsers(_(req.body || {}).extend({
+        api.users.getUsers({
+            query: req.body,
             summary: true
-        }), function(err, json){
+        }, function(err, json){
             if(err){
                 return next(err);
             }
@@ -115,7 +116,11 @@ module.exports = function routing(){
     // thread routes
     // get
     app.get('/threads', checkAuth, function(req, res, next){
-        api.threads.getThreads(req.query || {}, function(err, json){
+        api.threads.getThreads(_(req.query || {}).extend({
+            query: {
+                categories: req.query.categories
+            }
+        }), function(err, json){
             if(err){
                 return next(err);
             }
@@ -125,6 +130,9 @@ module.exports = function routing(){
 
     app.get('/threads/complete', checkAuth, function(req, res, next){
         api.threads.getThreads(_(req.query || {}).extend({
+            query: {
+                categories: req.query.categories
+            },
             populate: true
         }), function(err, json){
             if(err){
@@ -136,6 +144,11 @@ module.exports = function routing(){
 
     app.get('/threads/summary', checkAuth, function(req, res, next){
         api.threads.getThreads(_(req.query || {}).extend({
+            query: {
+                categories: req.query.categories,
+                name: req.query.name,
+                postedby: req.query.postedby
+            },
             summary: true
         }), function(err, json){
             if(err){

@@ -17,12 +17,10 @@ module.exports = function(db){
     return {
         getComments: function(options, done){
             queryBuilder.buildOptions('read:comments', options, function(err, cleanOptions){
-                if(err){
-                    return done(err);
-                }
+                if(err) return done(err);
 
                 var query = db.comment
-                    .find(cleanOptions.query);
+                    .find(_(cleanOptions.query).extend({postedby: 'cham'}));
 
                 if(cleanOptions.countonly){
                     query.count(function (err, count) {
@@ -34,7 +32,7 @@ module.exports = function(db){
                     });
                     return;
                 }
-                
+
                 query.exec(function(err, comments){
                     if(err) return done(err);
 

@@ -22,16 +22,34 @@ function parseIntOrDefault(val, def){
 module.exports = {
 
     mapping: {
+        clean: function(query){
+            return _(query).reduce(function(memo, val, key){
+                if(!_.isUndefined(val)){
+                    memo[key] = val;
+                }
+                return memo;
+            },{});
+        },
         'read:threads': function(query){
             query = query || {};
 
-            return query;
+            if(query.name){
+                query.name = new RegExp(query.name);
+            }
+
+            return this.clean({
+                categories: query.categories,
+                name: query.name,
+                urlname: query.urlname,
+                _id: query._id,
+                postedby: query.postedby
+            });
         },
         'write:threads': function(query){
             var now = new Date();
             query = query || {};
 
-            return {
+            return this.clean({
                 name: query.name,
                 urlname: encodeURIComponent(query.name.replace(/(\s-|[^A-Za-z0-9-])/g,'-')),
                 postedby: query.postedby,
@@ -40,24 +58,24 @@ module.exports = {
                 last_comment_by: query.postedby,
                 last_comment_time: now,
                 comments: []
-            };
+            });
         },
         'read:comments': function(query){
             query = query || {};
 
-            return query;
+            return this.clean(query);
         },
         'write:comments': function(query){
             var now = new Date();
             query = query || {};
 
-            return {
+            return this.clean({
                 postedby: query.postedby,
                 content: query.content,
                 created: now,
                 edit_percent: 0,
                 points: 0
-            };
+            });
         },
         'read:users': function(query){
             query = query || {};
@@ -70,13 +88,13 @@ module.exports = {
                                     .digest("hex");
             }
 
-            return query;
+            return this.clean(query);
         },
         'write:users': function(query){
             var now = new Date();
             query = query || {};
 
-            return {
+            return this.clean({
                 username: query.username,
                 urlname: encodeURIComponent(query.username),
                 password: crypto
@@ -89,7 +107,7 @@ module.exports = {
                 last_login: now,
                 created: now,
                 modified: now
-            };
+            });
         }
     },
 

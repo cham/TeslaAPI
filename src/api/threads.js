@@ -3,7 +3,8 @@
  */
 var _ = require('underscore'),
     queryBuilder = require('./queryBuilder'),
-    comments = require('./comments');
+    comments = require('./comments'),
+    users = require('./users');
 
 function summaryMapping(thread){
     return {
@@ -22,7 +23,9 @@ function summaryMapping(thread){
 }
 
 module.exports = function(db){
-    var commentsApi = comments(db);
+    var commentsApi = comments(db),
+        usersApi = users(db);
+
     return {
         getThreads: function(options, done){
             queryBuilder.buildOptions('read:threads', options, function(err, cleanOptions){
@@ -140,32 +143,45 @@ module.exports = function(db){
         postThread: function(options, done){
             var that = this;
 
-            queryBuilder.buildOptions('write:threads', options, function(err, cleanOptions){
-                if(err){
-                    return done(err);
+            usersApi.getUser({
+                query: {
+                    username: options.query.postedby
                 }
+            }, function(err, user){
+                if(err) return done(err);
 
-                var thread = new db.thread(cleanOptions.query);
+                queryBuilder.buildOptions('write:threads', options, function(err, cleanOptions){
+                    if(err){
+                        return done(err);
+                    }
 
-                return that.postCommentInThread({
-                    query: {
-                        postedby: options.query.postedby,
-                        content: options.query.content
-                    },
-                    thread: thread,
-                    returnthread: true
-                }, done);
+                    var thread = new db.thread(cleanOptions.query);
+
+                    return that.postCommentInThreadByUser({
+                        query: {
+                            postedby: options.query.postedby,
+                            content: options.query.content
+                        },
+                        user: user,
+                        thread: thread,
+                        returnthread: true
+                    }, done);
+                });
+                
             });
         },
 
-        postCommentInThread: function(options, done){
-            var thread;
-
+        postCommentInThreadByUser: function(options, done){
             options = options || {};
             if(!options.thread){
                 done(new Error('thread is required'));
             }
-            thread = options.thread;
+            if(!options.user){
+                done(new Error('user is required'));
+            }
+            
+            var thread = options.thread,
+                user = options.user;
 
             queryBuilder.buildOptions('write:comments', options, function(err, cleanOptions){
                 if(err){
@@ -185,12 +201,16 @@ module.exports = function(db){
                     thread.last_comment_by = cleanOptions.query.postedby;
                     thread.last_comment_time = new Date();
                     thread.comments.push(comment._id);
-                    thread.save(function(err){
-                        if(err){
-                            return done(err);
-                        }
+                    user.participated.push(thread._id);
 
-                        return done(null, options.returnthread ? thread : comment);
+                    user.save(function(err){
+                        if(err) return done(err);
+                        
+                        thread.save(function(err){
+                            if(err) return done(err);
+
+                            return done(null, options.returnthread ? thread : comment);
+                        });
                     });
                 });
             });
@@ -200,27 +220,36 @@ module.exports = function(db){
             var thread,
                 that = this;
 
-            this.getThread({
+            usersApi.getUser({
                 query: {
-                    _id: options.query.threadid
+                    username: options.query.postedby
                 }
-            }, function(err, json){
-                if(err){
-                    return done(err);
-                }
-
-                if(!json.threads || !json.threads.length){
-                    return done(new Error('thread not found'));
-                }
-                thread = json.threads[0];
-
-                return that.postCommentInThread({
+            }, function(err, user){
+                if(err) return done(err);
+                
+                that.getThread({
                     query: {
-                        postedby: options.query.postedby,
-                        content: options.query.content
-                    },
-                    thread: thread
-                }, done);
+                        _id: options.query.threadid
+                    }
+                }, function(err, json){
+                    if(err){
+                        return done(err);
+                    }
+
+                    if(!json.threads || !json.threads.length){
+                        return done(new Error('thread not found'));
+                    }
+                    thread = json.threads[0];
+
+                    return that.postCommentInThreadByUser({
+                        query: {
+                            postedby: options.query.postedby,
+                            content: options.query.content
+                        },
+                        user: user,
+                        thread: thread
+                    }, done);
+                });
             });
         }
     };
