@@ -25,7 +25,9 @@ var mongoose = require('mongoose'),
         lastpointusage: Date,
         thread_size: {type: Number, default: 50},
         comment_size: {type: Number, default: 50},
-        participated: [String]
+        participated: [String],
+        favourites: [String],
+        hidden: [String]
     });
 
 module.exports = UserSchema;
