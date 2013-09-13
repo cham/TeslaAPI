@@ -210,6 +210,26 @@ module.exports = function routing(){
         });
     });
 
+    app.get('/randomthread', checkAuth, function(req, res, next){
+        api.threads.getThreads({
+            countonly: true
+        }, function(err, data){
+            if(err) return next(err);
+
+            var i = Math.floor(Math.random() * data.totaldocs);
+
+            api.threads.getThreads({
+                size: 1,
+                page: i,
+                summary: true
+            }, function(err, json){
+                if(err) return next(err);
+
+                res.send(json);
+            });
+        });
+    });
+
     // post
     app.post('/thread', checkAuth, function(req, res, next){
         var body = req.body;

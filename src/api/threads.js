@@ -28,10 +28,12 @@ module.exports = function(db){
 
     return {
         getThreads: function(options, done){
+console.log('getThreads options', options);
             queryBuilder.buildOptions('read:threads', options, function(err, cleanOptions){
                 if(err){
                     return done(err);
                 }
+console.log('getThreads cleanOptions', cleanOptions);
 
                 var totaldocs,
                     query = db.thread.find(cleanOptions.query);
@@ -222,16 +224,13 @@ module.exports = function(db){
 
                     if(user.participated.indexOf(thread._id) === -1){
                         user.participated.push(thread._id);
+                        user.save();
                     }
 
-                    user.save(function(err){
+                    thread.save(function(err){
                         if(err) return done(err);
 
-                        thread.save(function(err){
-                            if(err) return done(err);
-
-                            return done(null, options.returnthread ? thread : comment);
-                        });
+                        return done(null, options.returnthread ? thread : comment);
                     });
                 });
             });
