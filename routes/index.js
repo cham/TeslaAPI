@@ -96,7 +96,7 @@ module.exports = function routing(){
     // post
     app.post('/comment', checkAuth, function(req, res, next){
         var body = req.body;
-
+console.log(body);
         api.threads.postComment({
             query: {
                 postedby: body.postedby,
@@ -220,8 +220,7 @@ module.exports = function routing(){
 
             api.threads.getThreads({
                 size: 1,
-                page: i,
-                summary: true
+                page: i
             }, function(err, json){
                 if(err) return next(err);
 

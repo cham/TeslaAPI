@@ -28,12 +28,10 @@ module.exports = function(db){
 
     return {
         getThreads: function(options, done){
-console.log('getThreads options', options);
             queryBuilder.buildOptions('read:threads', options, function(err, cleanOptions){
                 if(err){
                     return done(err);
                 }
-console.log('getThreads cleanOptions', cleanOptions);
 
                 var totaldocs,
                     query = db.thread.find(cleanOptions.query);
