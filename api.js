@@ -4,6 +4,7 @@
  */
 
 var express = require('express'),
+    toobusy = require('toobusy'),
     routes = require('./routes'),
     http = require('http'),
     path = require('path'),
@@ -19,6 +20,13 @@ app.configure(function(){
   app.use(express.methodOverride());
   app.use(express.cookieParser('0rly?YA,rly!'));
   app.use(sessionGenerator(sessionStore));
+  app.use(function(req, res, next){
+    if(toobusy()){
+      res.send(503, 'Too many requests');
+    }else{
+      next();
+    }
+  });
   app.use(routes());
   app.use(express.static(path.join(__dirname, 'public')));
 });
