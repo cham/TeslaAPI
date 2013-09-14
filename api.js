@@ -11,12 +11,8 @@ var express = require('express'),
     sessionStore = new express.session.MemoryStore({reapInterval: 60*60*1000}),
     app = express();
 
-app.engine('html', require('hogan-express'));
-app.enable('view cache');
-
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
-  app.set('view engine', 'html');
   app.use(express.favicon(__dirname + '/public/favicon.ico'));
   app.use(express.logger('dev'));
   app.use(express.bodyParser());
