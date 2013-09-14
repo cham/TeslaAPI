@@ -12,6 +12,8 @@
     "sanitizer": "~0.0.15",
     "underscore": "1.4.4",
     "mongoose": "3.6.19",
-    "crypto": "0.0.3"
+    "crypto": "0.0.3",
+    "nodeload": "0.4.0",
+    "toobusy": "0.2.3"
   }
 }
