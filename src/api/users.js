@@ -25,9 +25,7 @@ module.exports = function(db){
     return {
         getUsers: function(options, done){
             queryBuilder.buildOptions('read:users', options, function(err, cleanOptions){
-                if(err){
-                    return done(err);
-                }
+                if(err) return done(err);
 
                 db.user
                     .find(cleanOptions.query)
@@ -45,9 +43,7 @@ module.exports = function(db){
 
         getUser: function(options, done){
             queryBuilder.buildOptions('read:users', options, function(err, cleanOptions){
-                if(err){
-                    return done(err);
-                }
+                if(err) return done(err);
 
                 db.user
                     .findOne(cleanOptions.query)
@@ -67,9 +63,7 @@ module.exports = function(db){
 
         addUser: function(options, done){
             queryBuilder.buildOptions('write:users', options, function(err, cleanOptions){
-                if(err){
-                    return done(err);
-                }
+                if(err) return done(err);
 
                 var user = new db.user(cleanOptions.query);
 
@@ -110,9 +104,8 @@ module.exports = function(db){
             db.user
                 .findOne({username: options.username})
                 .remove(function(err, success){
-                    if(err){
-                        return done(err);
-                    }
+                    if(err) return done(err);
+
                     done();
                 });
         },
@@ -121,9 +114,8 @@ module.exports = function(db){
             db.user
                 .find()
                 .remove(function(err){
-                    if(err){
-                        return done(err);
-                    }
+                    if(err) return done(err);
+
                     done();
                 });
         }

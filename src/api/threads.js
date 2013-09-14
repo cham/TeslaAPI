@@ -140,22 +140,37 @@ module.exports = function(db){
         },
 
         getUserList: function(options, done){
-            var that = this,
-                summary = !!options.summary; // pass to getThreads only
+            var that = this, // following vars to getThreads only - do not apply to getUser
+                summary = !!options.summary, 
+                populate = !!options.populate,
+                excludelist = !!options.excludelist;
 
             delete options.summary;
+            delete options.populate;
+            delete options.excludelist;
 
             usersApi.getUser(options, function(err, user){
                 if(err) return done(err);
 
                 if(!user) return done(new Error('user not found'));
 
-                return that.getThreads({
-                    query: {
-                        _id: { $in: user[options.listkey] }
-                    },
-                    summary: summary
-                }, done);
+                if(excludelist){
+                    return that.getThreads({
+                        query: {
+                            _id: { $nin: user[options.listkey] }
+                        },
+                        summary: summary,
+                        populate: populate
+                    }, done);
+                }else{
+                    return that.getThreads({
+                        query: {
+                            _id: { $in: user[options.listkey] }
+                        },
+                        summary: summary,
+                        populate: populate
+                    }, done);
+                }
             });
         },
 

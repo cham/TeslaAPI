@@ -245,6 +245,47 @@ module.exports = function routing(){
         });
     });
 
+    app.get('/user/:username/threads', checkAuth, function(req, res, next){
+        api.threads.getUserList({
+            query: {
+                username: req.route.params.username
+            },
+            listkey: 'hidden',
+            excludelist: true
+        }, function(err, json){
+            if(err) return next(err);
+            res.send(json);
+        });
+    });
+
+    app.get('/user/:username/threads/summary', checkAuth, function(req, res, next){
+        api.threads.getUserList({
+            query: {
+                username: req.route.params.username
+            },
+            listkey: 'hidden',
+            excludelist: true,
+            summary: true
+        }, function(err, json){
+            if(err) return next(err);
+            res.send(json);
+        });
+    });
+
+    app.get('/user/:username/threads/complete', checkAuth, function(req, res, next){
+        api.threads.getUserList({
+            query: {
+                username: req.route.params.username
+            },
+            listkey: 'hidden',
+            excludelist: true,
+            populate: true
+        }, function(err, json){
+            if(err) return next(err);
+            res.send(json);
+        });
+    });
+
     // participated, favourites, hidden
     app.get('/user/:username/participated', checkAuth, function(req, res, next){
         api.threads.getUserList({
