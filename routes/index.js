@@ -6,7 +6,9 @@
 var _ = require('underscore'),
     express = require('express'),
     url = require('url'),
-    api = require('../src/api/api');
+    api = require('../src/api/api'),
+    stresstest = false,
+    stressTester = stresstest ? require('../src/stressTester') : {routing:function(){}};
 
 module.exports = function routing(){
 
@@ -14,6 +16,9 @@ module.exports = function routing(){
 
     function checkAuth(res, req, next){
         next();
+    }
+    if(stresstest){
+        stressTester.routing(app);
     }
 
     /*
