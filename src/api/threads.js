@@ -8,6 +8,7 @@ var _ = require('underscore'),
 
 function summaryMapping(thread){
     return {
+        _id: thread._id,
         created: thread.created,
         last_comment_by: thread.last_comment_by,
         last_comment_time: thread.last_comment_time,

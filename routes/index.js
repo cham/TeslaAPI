@@ -193,7 +193,7 @@ module.exports = function routing(){
         });
     });
 
-    // get users
+    // get
     app.get('/users', checkAuth, function(req, res, next){
         api.users.getUsers(req.route.params || {}, function(err, data){
             if(err){
@@ -362,8 +362,7 @@ module.exports = function routing(){
     // login
     app.post('/login', checkAuth, function(req, res, next){
         api.users.getUsers({
-            query: req.body,
-            summary: true
+            query: req.body
         }, function(err, json){
             if(err){
                 return next(err);
@@ -394,6 +393,39 @@ module.exports = function routing(){
             res.send({
                 comment: thread
             });
+        });
+    });
+
+
+    /*
+     * put
+     */
+    // favourite
+    app.put('/user/:username/favourite', checkAuth, function(req, res, next){
+        api.users.updateUserList({
+            query: {
+                username: req.route.params.username
+            },
+            listkey: 'favourites',
+            listval: req.body.listval
+        }, function(err, json){
+            if(err) return next(err);
+
+            res.send(json);
+        });
+    });
+    // hide
+    app.put('/user/:username/hide', checkAuth, function(req, res, next){
+        api.users.updateUserList({
+            query: {
+                username: req.route.params.username
+            },
+            listkey: 'hidden',
+            listval: req.body.listval
+        }, function(err, json){
+            if(err) return next(err);
+
+            res.send(json);
         });
     });
 

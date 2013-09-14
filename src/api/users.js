@@ -83,6 +83,29 @@ module.exports = function(db){
             });
         },
 
+        updateUserList: function(options, done){
+            this.getUser(options, function(err, user){
+                if(err) return done(err);
+
+                queryBuilder.buildOptions('update:users', options, function(err, cleanOptions){
+                    if(err) return done(err);
+
+                    var key = cleanOptions.listkey,
+                        val = cleanOptions.listval;
+
+                    if(_.isArray(user[key]) && user[key].indexOf(val) === -1){
+                        user[key].push(val);
+                    }
+
+                    user.save(function(err){
+                        if(err) return done(err);
+
+                        return done(null, user);
+                    });
+                });
+            });
+        },
+
         deleteUser: function(options, done){
             db.user
                 .findOne({username: options.username})

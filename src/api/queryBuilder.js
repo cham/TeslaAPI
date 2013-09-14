@@ -114,6 +114,13 @@ module.exports = {
                 favourites: [],
                 hidden: []
             });
+        },
+        'update:users': function(query){
+            query = query || {};
+
+            return this.clean({
+                username: query.username
+            });
         }
     },
 
@@ -138,6 +145,11 @@ module.exports = {
         },
         'write:users': function(query){
             var required = ['username', 'password', 'email', 'ip'];
+
+            return this.getMissing(required, query);
+        },
+        'update:users': function(query){
+            var required = ['username'];
 
             return this.getMissing(required, query);
         }
@@ -181,7 +193,11 @@ module.exports = {
         cleanOptions.populate = !!options.populate;
         cleanOptions.countonly = !!options.countonly;
 
-        next(null, cleanOptions);
+        // list updating
+        cleanOptions.listkey = options.listkey;
+        cleanOptions.listval = options.listval;
+
+        next(null, this.mapping.clean(cleanOptions));
     }
 
 };
