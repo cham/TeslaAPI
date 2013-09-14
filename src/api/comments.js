@@ -20,7 +20,7 @@ module.exports = function(db){
                 if(err) return done(err);
 
                 var query = db.comment
-                    .find(_(cleanOptions.query).extend({postedby: 'cham'}));
+                    .find(cleanOptions.query);
 
                 if(cleanOptions.countonly){
                     query.count(function (err, count) {
