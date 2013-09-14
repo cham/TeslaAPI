@@ -6,8 +6,7 @@
 var _ = require('underscore'),
     express = require('express'),
     url = require('url'),
-    api = require('../src/api/api'),
-    args = require('argsparser').parse();
+    api = require('../src/api/api');
 
 module.exports = function routing(){
 
@@ -400,6 +399,7 @@ module.exports = function routing(){
     /*
      * put
      */
+     // NB - should these be PATCH instead of PUT?
     // favourite
     app.put('/user/:username/favourite', checkAuth, function(req, res, next){
         api.users.updateUserList({
