@@ -27,17 +27,29 @@ module.exports = function(db){
             queryBuilder.buildOptions('read:users', options, function(err, cleanOptions){
                 if(err) return done(err);
 
-                db.user
-                    .find(cleanOptions.query)
-                    .exec(function(err, users){
-                        if(err){
-                            return done(err);
-                        }
+                var query = db.user
+                    .find(cleanOptions.query);
 
-                        done(null,{
-                            users: cleanOptions.summary ? _(users).map(summaryMapping) : users
+                if(cleanOptions.countonly){
+                    query.count(function (err, count) {
+                        if (err) return done(err);
+                        
+                        done(null, {
+                            totaldocs: count
                         });
                     });
+                    return;
+                }
+
+                query.exec(function(err, users){
+                    if(err){
+                        return done(err);
+                    }
+
+                    done(null,{
+                        users: cleanOptions.summary ? _(users).map(summaryMapping) : users
+                    });
+                });
             });
         },
 
