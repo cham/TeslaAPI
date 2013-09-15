@@ -154,20 +154,16 @@ module.exports = function(db){
                 if(err) return done(err);
                 if(!user) return done(new Error('user not found'));
 
-                var query;
+                var idClause = { $in: user[options.listkey] };
 
                 if(excludelist){
-                    query = _(threadquery || {}).extend({
-                        _id: { $nin: user[options.listkey] }
-                    });
-                }else{
-                    query = _(threadquery || {}).extend({
-                        _id: { $in: user[options.listkey] }
-                    });
+                    idClause = { $nin: user[options.listkey] };
                 }
 
                 return that.getThreads({
-                    query: query,
+                    query: _(threadquery || {}).extend({
+                        _id: idClause
+                    }),
                     page: options.page,
                     size: options.size,
                     summary: summary,

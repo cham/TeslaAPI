@@ -138,14 +138,14 @@ module.exports = function(db){
 
                 if(excludelist){
                     query = _(usersquery || {}).extend({
-                        _id: { $nin: arr }
+                        username: { $nin: arr }
                     });
                 }else{
                     query = _(usersquery || {}).extend({
-                        _id: { $in: arr }
+                        username: { $in: arr }
                     });
                 }
-                
+
                 return that.getUsers({
                     query: query,
                     page: options.page,

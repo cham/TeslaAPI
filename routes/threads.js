@@ -1,3 +1,30 @@
+/*
+ * threads routing
+ *
+ * GET
+ *      /threads
+ *      /threads/complete
+ *      /threads/summary
+ *      /threads/count
+ *      /thread/:threadUrlName
+ *      /thread/:threadUrlName/complete
+ *      /thread/:threadUrlName/summary
+ *      /randomthread
+ *      /user/:username/threads
+ *      /user/:username/threads/summary
+ *      /user/:username/threads/complete
+ *      /user/:username/hidden
+ *      /user/:username/hidden/summary
+ *      /user/:username/favourites
+ *      /user/:username/favourites/summary
+ *      /user/:username/participated
+ *      /user/:username/participated/summary
+ *
+ * POST
+ *      /thread
+ *      /comment
+ *
+ */
 var _ = require('underscore'),
     api = require('../src/api/api');
 
@@ -145,7 +172,7 @@ module.exports = function routing(app){
                 name: req.query.name,
                 postedby: req.query.postedby
             },
-            listkey: 'hidden',
+            listkey: 'hidden', // array here would allow hidden and not ignored
             excludelist: true,
             summary: true
         }), function(err, json){
@@ -204,7 +231,7 @@ module.exports = function routing(app){
             res.send(json);
         });
     });
-    
+
     app.get('/user/:username/participated/summary', checkAuth, function(req, res, next){
         api.threads.getThreadsInUserList(_(req.query || {}).extend({
             query: {
