@@ -123,7 +123,7 @@ module.exports = function routing(app){
         });
     });
     app.get('/user/:username/threads', checkAuth, function(req, res, next){
-        api.threads.getUserList(_(req.query || {}).extend({
+        api.threads.getThreadsInUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
@@ -136,7 +136,7 @@ module.exports = function routing(app){
     });
 
     app.get('/user/:username/threads/summary', checkAuth, function(req, res, next){
-        api.threads.getUserList(_(req.query || {}).extend({
+        api.threads.getThreadsInUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username,
             },
@@ -155,7 +155,7 @@ module.exports = function routing(app){
     });
 
     app.get('/user/:username/threads/complete', checkAuth, function(req, res, next){
-        api.threads.getUserList(_(req.query || {}).extend({
+        api.threads.getThreadsInUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
@@ -168,9 +168,9 @@ module.exports = function routing(app){
         });
     });
 
-    // participated, favourites, hidden
+    // participated, favourites, hidden, buddy, ignore
     app.get('/user/:username/participated', checkAuth, function(req, res, next){
-        api.threads.getUserList(_(req.query || {}).extend({
+        api.threads.getThreadsInUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
@@ -182,7 +182,7 @@ module.exports = function routing(app){
     });
     
     app.get('/user/:username/favourites', checkAuth, function(req, res, next){
-        api.threads.getUserList(_(req.query || {}).extend({
+        api.threads.getThreadsInUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
@@ -194,7 +194,7 @@ module.exports = function routing(app){
     });
     
     app.get('/user/:username/hidden', checkAuth, function(req, res, next){
-        api.threads.getUserList(_(req.query || {}).extend({
+        api.threads.getThreadsInUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
@@ -206,7 +206,7 @@ module.exports = function routing(app){
     });
     
     app.get('/user/:username/participated/summary', checkAuth, function(req, res, next){
-        api.threads.getUserList(_(req.query || {}).extend({
+        api.threads.getThreadsInUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
@@ -219,7 +219,7 @@ module.exports = function routing(app){
     });
     
     app.get('/user/:username/favourites/summary', checkAuth, function(req, res, next){
-        api.threads.getUserList(_(req.query || {}).extend({
+        api.threads.getThreadsInUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
@@ -232,7 +232,7 @@ module.exports = function routing(app){
     });
     
     app.get('/user/:username/hidden/summary', checkAuth, function(req, res, next){
-        api.threads.getUserList(_(req.query || {}).extend({
+        api.threads.getThreadsInUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },

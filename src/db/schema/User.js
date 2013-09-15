@@ -27,7 +27,9 @@ var mongoose = require('mongoose'),
         comment_size: {type: Number, default: 50},
         participated: [String],
         favourites: [String],
-        hidden: [String]
+        hidden: [String],
+        buddies: [String],
+        ignores: [String]
     });
 
 module.exports = UserSchema;

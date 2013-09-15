@@ -139,9 +139,9 @@ module.exports = function(db){
             });
         },
 
-        getUserList: function(options, done){
+        getThreadsInUserList: function(options, done){
             var that = this, // following vars to getThreads only - do not apply to getUser
-                summary = !!options.summary, 
+                summary = !!options.summary,
                 populate = !!options.populate,
                 excludelist = !!options.excludelist,
                 threadquery = options.threadquery;

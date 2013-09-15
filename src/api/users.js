@@ -112,6 +112,51 @@ module.exports = function(db){
             });
         },
 
+        getUsersInUserList: function(options, done){
+            var that = this, // following vars to getUsers only - do not apply to getUser
+                summary = !!options.summary,
+                populate = !!options.populate,
+                excludelist = !!options.excludelist,
+                usersquery = options.usersquery;
+
+            delete options.summary;
+            delete options.populate;
+            delete options.excludelist;
+
+            this.getUser(options, function(err, user){
+                if(err) return done(err);
+                if(!user) return done(new Error('user not found'));
+
+                var query,
+                    arr = user[options.listkey];
+
+                if(!arr.length){
+                    return done(null, {
+                        users: []
+                    });
+                }
+
+                if(excludelist){
+                    query = _(usersquery || {}).extend({
+                        _id: { $nin: arr }
+                    });
+                }else{
+                    query = _(usersquery || {}).extend({
+                        _id: { $in: arr }
+                    });
+                }
+                
+                return that.getUsers({
+                    query: query,
+                    page: options.page,
+                    size: options.size,
+                    summary: summary,
+                    populate: populate
+                }, done);
+            });
+        },
+
+
         deleteUser: function(options, done){
             db.user
                 .findOne({username: options.username})
