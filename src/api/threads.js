@@ -143,7 +143,8 @@ module.exports = function(db){
             var that = this, // following vars to getThreads only - do not apply to getUser
                 summary = !!options.summary, 
                 populate = !!options.populate,
-                excludelist = !!options.excludelist;
+                excludelist = !!options.excludelist,
+                threadquery = options.threadquery;
 
             delete options.summary;
             delete options.populate;
@@ -151,26 +152,27 @@ module.exports = function(db){
 
             usersApi.getUser(options, function(err, user){
                 if(err) return done(err);
-
                 if(!user) return done(new Error('user not found'));
 
+                var query;
+
                 if(excludelist){
-                    return that.getThreads({
-                        query: {
-                            _id: { $nin: user[options.listkey] }
-                        },
-                        summary: summary,
-                        populate: populate
-                    }, done);
+                    query = _(threadquery || {}).extend({
+                        _id: { $nin: user[options.listkey] }
+                    });
                 }else{
-                    return that.getThreads({
-                        query: {
-                            _id: { $in: user[options.listkey] }
-                        },
-                        summary: summary,
-                        populate: populate
-                    }, done);
+                    query = _(threadquery || {}).extend({
+                        _id: { $in: user[options.listkey] }
+                    });
                 }
+
+                return that.getThreads({
+                    query: query,
+                    page: options.page,
+                    size: options.size,
+                    summary: summary,
+                    populate: populate
+                }, done);
             });
         },
 

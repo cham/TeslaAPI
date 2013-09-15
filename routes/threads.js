@@ -91,12 +91,12 @@ module.exports = function routing(app){
     });
 
     app.get('/thread/:threadUrlName/summary', checkAuth, function(req, res, next){
-        api.threads.getThread({
+        api.threads.getThread(_(req.query || {}).extend({
             summary: true,
             query: {
                 urlname: encodeURIComponent(req.route.params.threadUrlName)
             }
-        }, function(err, json){
+        }), function(err, json){
             if(err){
                 return next(err);
             }
@@ -123,41 +123,46 @@ module.exports = function routing(app){
         });
     });
     app.get('/user/:username/threads', checkAuth, function(req, res, next){
-        api.threads.getUserList({
+        api.threads.getUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
             listkey: 'hidden',
             excludelist: true
-        }, function(err, json){
+        }), function(err, json){
             if(err) return next(err);
             res.send(json);
         });
     });
 
     app.get('/user/:username/threads/summary', checkAuth, function(req, res, next){
-        api.threads.getUserList({
+        api.threads.getUserList(_(req.query || {}).extend({
             query: {
-                username: req.route.params.username
+                username: req.route.params.username,
+            },
+            threadquery: {
+                categories: req.query.categories,
+                name: req.query.name,
+                postedby: req.query.postedby
             },
             listkey: 'hidden',
             excludelist: true,
             summary: true
-        }, function(err, json){
+        }), function(err, json){
             if(err) return next(err);
             res.send(json);
         });
     });
 
     app.get('/user/:username/threads/complete', checkAuth, function(req, res, next){
-        api.threads.getUserList({
+        api.threads.getUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
             listkey: 'hidden',
             excludelist: true,
             populate: true
-        }, function(err, json){
+        }), function(err, json){
             if(err) return next(err);
             res.send(json);
         });
@@ -165,75 +170,75 @@ module.exports = function routing(app){
 
     // participated, favourites, hidden
     app.get('/user/:username/participated', checkAuth, function(req, res, next){
-        api.threads.getUserList({
+        api.threads.getUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
             listkey: 'participated'
-        }, function(err, json){
+        }), function(err, json){
             if(err) return next(err);
             res.send(json);
         });
     });
     
     app.get('/user/:username/favourites', checkAuth, function(req, res, next){
-        api.threads.getUserList({
+        api.threads.getUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
             listkey: 'favourites'
-        }, function(err, json){
+        }), function(err, json){
             if(err) return next(err);
             res.send(json);
         });
     });
     
     app.get('/user/:username/hidden', checkAuth, function(req, res, next){
-        api.threads.getUserList({
+        api.threads.getUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
             listkey: 'hidden'
-        }, function(err, json){
+        }), function(err, json){
             if(err) return next(err);
             res.send(json);
         });
     });
     
     app.get('/user/:username/participated/summary', checkAuth, function(req, res, next){
-        api.threads.getUserList({
+        api.threads.getUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
             listkey: 'participated',
             summary: true
-        }, function(err, json){
+        }), function(err, json){
             if(err) return next(err);
             res.send(json);
         });
     });
     
     app.get('/user/:username/favourites/summary', checkAuth, function(req, res, next){
-        api.threads.getUserList({
+        api.threads.getUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
             listkey: 'favourites',
             summary: true
-        }, function(err, json){
+        }), function(err, json){
             if(err) return next(err);
             res.send(json);
         });
     });
     
     app.get('/user/:username/hidden/summary', checkAuth, function(req, res, next){
-        api.threads.getUserList({
+        api.threads.getUserList(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
             listkey: 'hidden',
             summary: true
-        }, function(err, json){
+        }), function(err, json){
             if(err) return next(err);
             res.send(json);
         });
