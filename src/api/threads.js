@@ -15,7 +15,7 @@ function summaryMapping(thread){
         name: thread.name,
         urlname: thread.urlname,
         postedby: thread.postedby,
-        comments: {length: thread.comments.length},
+        numcomments: thread.numcomments,
         deleted: thread.deleted,
         closed: thread.closed,
         nsfw: thread.nsfw,
