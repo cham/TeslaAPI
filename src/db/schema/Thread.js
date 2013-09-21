@@ -10,7 +10,8 @@ var mongoose = require('mongoose'),
         nsfw: Boolean,
         closed: Boolean,
         deleted: Boolean,
-        comments: [{type: String, ref: 'Comment'}]
+        comments: [{type: String, ref: 'Comment'}],
+        numcomments: {type: Number, default: 0}
     });
 
 module.exports = ThreadSchema;

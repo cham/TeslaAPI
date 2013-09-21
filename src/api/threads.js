@@ -236,6 +236,7 @@ module.exports = function(db){
                     thread.last_comment_by = cleanOptions.query.postedby;
                     thread.last_comment_time = new Date();
                     thread.comments.push(comment._id);
+                    thread.numcomments++;
 
                     if(user.participated.indexOf(thread._id) === -1){
                         user.participated.push(thread._id);
