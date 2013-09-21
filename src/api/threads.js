@@ -144,11 +144,13 @@ module.exports = function(db){
                 summary = !!options.summary,
                 populate = !!options.populate,
                 excludelist = !!options.excludelist,
-                threadquery = options.threadquery;
+                threadquery = options.threadquery,
+                sortBy = options.sortBy;
 
             delete options.summary;
             delete options.populate;
             delete options.excludelist;
+            delete options.sortBy;
 
             usersApi.getUser(options, function(err, user){
                 if(err) return done(err);
@@ -167,7 +169,8 @@ module.exports = function(db){
                     page: options.page,
                     size: options.size,
                     summary: summary,
-                    populate: populate
+                    populate: populate,
+                    sortBy: sortBy
                 }, done);
             });
         },
