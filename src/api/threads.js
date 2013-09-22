@@ -192,6 +192,13 @@ module.exports = function(db){
 
                     var thread = new db.thread(cleanOptions.query);
 
+                    if(!thread){
+                        return done(new Error('could not create thread'));
+                    }
+
+                    user.threads_count = (user.threads_count || 0) + 1;
+                    user.save();
+
                     return that.postCommentInThreadByUser({
                         query: {
                             postedby: options.query.postedby,
@@ -240,8 +247,10 @@ module.exports = function(db){
 
                     if(user.participated.indexOf(thread._id) === -1){
                         user.participated.push(thread._id);
-                        user.save();
                     }
+
+                    user.comments_count = (user.comments_count || 0) + 1;
+                    user.save();
 
                     thread.save(function(err){
                         if(err) return done(err);
