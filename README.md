@@ -8,6 +8,7 @@ Tesla forum database and RESTful API
 
 * [Node.JS](http://nodejs.org/)
 * [MongoDB](http://www.mongodb.org/)
+* [Xcode Command Line Tools - Mac only](https://developer.apple.com/xcode/)
 
 ## Getting started
 1. clone the repo
