@@ -196,6 +196,20 @@ module.exports = function routing(app){
             res.send(json);
         });
     });
+    app.put('/user/:username/unfavourite', checkAuth, function(req, res, next){
+        api.users.updateUserList({
+            query: {
+                username: req.route.params.username
+            },
+            listkey: 'favourites',
+            listval: req.body.listval,
+            removefromlist: true
+        }, function(err, json){
+            if(err) return next(err);
+
+            res.send(json);
+        });
+    });
     // hide
     app.put('/user/:username/hide', checkAuth, function(req, res, next){
         api.users.updateUserList({

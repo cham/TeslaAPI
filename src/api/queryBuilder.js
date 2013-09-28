@@ -196,6 +196,7 @@ module.exports = {
         // list updating
         cleanOptions.listkey = options.listkey;
         cleanOptions.listval = options.listval;
+        cleanOptions.removefromlist = !!options.removefromlist;
 
         next(null, this.mapping.clean(cleanOptions));
     }

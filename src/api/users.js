@@ -99,8 +99,12 @@ module.exports = function(db){
                     var key = cleanOptions.listkey,
                         val = cleanOptions.listval;
 
-                    if(_.isArray(user[key]) && user[key].indexOf(val) === -1){
-                        user[key].push(val);
+                    if(cleanOptions.removefromlist){
+                        user[key] = _(user[key]).without(val);
+                    }else{
+                        if(_.isArray(user[key]) && user[key].indexOf(val) === -1){
+                            user[key].push(val);
+                        }
                     }
 
                     user.save(function(err){
