@@ -224,6 +224,20 @@ module.exports = function routing(app){
             res.send(json);
         });
     });
+    app.put('/user/:username/unhide', checkAuth, function(req, res, next){
+        api.users.updateUserList({
+            query: {
+                username: req.route.params.username
+            },
+            listkey: 'hidden',
+            listval: req.body.listval,
+            removefromlist: true
+        }, function(err, json){
+            if(err) return next(err);
+
+            res.send(json);
+        });
+    });
     // buddy
     app.put('/user/:username/buddy', checkAuth, function(req, res, next){
         api.users.updateUserList({
