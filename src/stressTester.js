@@ -11,6 +11,9 @@
 var nl = require('nodeload'),
     api = require('./api/api');
 
+function fuzzy(min, max){
+    return Math.floor(Math.random()*(max-min)) + min;
+}
 function randomString(memo, length){
     var num = Math.floor(Math.random()*17);
     length--;
@@ -24,12 +27,46 @@ function randomString(memo, length){
     }
     return memo;
 }
+function bonusContent(memo, length){
+    var str = randomString(memo, length),
+        position = Math.floor(Math.random() * length);
+
+    if(Math.random()<0.3){
+        return [
+            str.slice(0, position),
+            '<img src="http://placekitten.com/'+fuzzy(300, 700)+'/'+fuzzy(200, 450)+'">',
+            str.slice(position)
+        ].join(' ');
+    }
+
+    return str;
+}
 
 var testthread = {
-        _id: '52343e0881f2730000000004',
-        urlname: 'new-thred-ok',
+        _id: '5247773fc048248dd8000001',
+        urlname: 'new-thread',
         username: 'cham'
-    };
+    },
+    postuser,
+    postthread;
+
+    api.users.getUser({
+        query: {
+            username: testthread.username
+        }
+    }, function(err, user){
+        if(err) return done(err);
+        postuser = user;
+    });
+
+    api.threads.getThread({
+        query: {
+            urlname: testthread.urlname
+        }
+    }, function(err, thread){
+        if(err) return done(err);
+        postthread = thread.threads[0];
+    });
 
 // current yay stats
 // users: 2875
@@ -38,15 +75,15 @@ var testthread = {
 
 module.exports = {
     routing: function(app){
-        app.get('/stresstarget', this.newcomment);
+        app.get('/stresstarget', this.fastcomment);
         app.get('/stresstest', this.runner);
     },
     runner: function(req, res, next){
         var loadtest = nl.run({
             host: 'localhost',
             port: 3000,
-            timeLimit: 5*60,
-            targetRps: 500,
+            timeLimit: 15*60,
+            targetRps: 200,
             requestGenerator: function(client){
                 var request = client.request('GET', "/stresstarget?_=" + Math.floor(Math.random()*100000000));
                 request.end();
@@ -61,9 +98,27 @@ module.exports = {
         api.threads.postComment({
             query: {
                 postedby: testthread.username,
-                content: randomString('', 750),
+                content: bonusContent('', Math.floor(Math.random()*750)),
                 threadid: testthread._id
             }
+        }, function(err, comment){
+            if(err){
+                return next(err);
+            }
+            res.send({
+                comment: comment
+            });
+        });
+    },
+
+    fastcomment: function(req, res, next){
+        api.threads.postCommentInThreadByUser({
+            query: {
+                postedby: testthread.username,
+                content: bonusContent('', Math.floor(Math.random()*750))
+            },
+            user: postuser,
+            thread: postthread
         }, function(err, comment){
             if(err){
                 return next(err);
