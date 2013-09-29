@@ -75,14 +75,14 @@ var testthread = {
 
 module.exports = {
     routing: function(app){
-        app.get('/stresstarget', this.fastcomment);
+        app.get('/stresstarget', this.newthread);
         app.get('/stresstest', this.runner);
     },
     runner: function(req, res, next){
         var loadtest = nl.run({
             host: 'localhost',
             port: 3000,
-            timeLimit: 15*60,
+            timeLimit: 60,
             targetRps: 200,
             requestGenerator: function(client){
                 var request = client.request('GET', "/stresstarget?_=" + Math.floor(Math.random()*100000000));
@@ -108,6 +108,26 @@ module.exports = {
             res.send({
                 comment: comment
             });
+        });
+    },
+
+    newthread: function(req, res, next){
+        var possibleCategories = ['Discussions','Advice','Projects','Meaningless'];
+        api.threads.postThread({
+            query: {
+                name: randomString('', Math.floor(Math.random()*50)),
+                postedby: testthread.username,
+                categories: possibleCategories[Math.floor(Math.random()*4)],
+                content: bonusContent('', Math.floor(Math.random()*750))
+            }
+        }, function(err, data){
+            if(err){
+                res.status(500);
+                return res.send({
+                    msg: err.toString()
+                });
+            }
+            res.send(data);
         });
     },
 
