@@ -2,6 +2,7 @@
  * Tesla api methods for accessing and manipulating thread data
  */
 var _ = require('underscore'),
+    async = require('async'),
     queryBuilder = require('./queryBuilder'),
     comments = require('./comments'),
     users = require('./users');
@@ -48,43 +49,52 @@ module.exports = function(db){
                     return;
                 }
 
-                _(query).clone().count(function (err, count) {
-                    if (err) return done(err);
-                    totaldocs = count;
-                });
+                // count now takes longer than query for users
+                async.parallel({
+                    totaldocs: function(asyncDone){
+                        _(query).clone().count(function (err, count) {
+                            if (err) return asyncDone(err);
 
-                if(cleanOptions.sortBy){
-                    query.sort(cleanOptions.sortBy);
-                }
-                if(cleanOptions.skip){
-                    query.skip(cleanOptions.skip);
-                }
-                if(cleanOptions.limit){
-                    query.limit(cleanOptions.limit);
-                }
+                            asyncDone(null, count);
+                        });
+                    },
+                    threads: function(asyncDone){
+                        if(cleanOptions.sortBy){
+                            query.sort(cleanOptions.sortBy);
+                        }
+                        if(cleanOptions.skip){
+                            query.skip(cleanOptions.skip);
+                        }
+                        if(cleanOptions.limit){
+                            query.limit(cleanOptions.limit);
+                        }
 
-                // population only below here
-                if(cleanOptions.populate){
-                    query.populate('comments');
-                }
+                        // population only below here
+                        if(cleanOptions.populate){
+                            query.populate('comments');
+                        }
 
-                query.exec(function(err, threads){
-                    if(err){
-                        return done(err);
+                        query.exec(function(err, threads){
+                            if(err) return asyncDone(err);
+
+                            if(!threads || !threads.length){
+                                return asyncDone(null, []);
+                            }
+                            if(cleanOptions.summary){
+                                threads = _(threads).map(summaryMapping);
+                            }
+                            asyncDone(null, threads);
+                        });
                     }
-                    if(!threads || !threads.length){
-                        return done(null, []);
-                    }
-                    if(cleanOptions.summary){
-                        threads = _(threads).map(summaryMapping);
-                    }
+                }, function(err, results){
+                    if(err) return done(err);
 
                     done(null,
                         {
-                            threads: threads,
+                            threads: results.threads,
                             skip: cleanOptions.skip,
                             limit: cleanOptions.limit,
-                            totaldocs: totaldocs
+                            totaldocs: results.totaldocs
                         }
                     );
                 });

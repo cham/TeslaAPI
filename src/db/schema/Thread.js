@@ -14,6 +14,6 @@ var mongoose = require('mongoose'),
         numcomments: {type: Number, default: 0}
     });
 
-// ThreadSchema.index({last_comment_time: -1});
+ThreadSchema.index({last_comment_time: -1});
 
 module.exports = ThreadSchema;

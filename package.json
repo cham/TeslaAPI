@@ -14,6 +14,7 @@
     "mongoose": "3.6.19",
     "crypto": "0.0.3",
     "nodeload": "0.4.0",
-    "toobusy": "0.2.3"
+    "toobusy": "0.2.3",
+    "async": "0.2.9"
   }
 }
