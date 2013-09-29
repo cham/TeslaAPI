@@ -252,6 +252,20 @@ module.exports = function routing(app){
             res.send(json);
         });
     });
+    app.put('/user/:username/unbuddy', checkAuth, function(req, res, next){
+        api.users.updateUserList({
+            query: {
+                username: req.route.params.username
+            },
+            listkey: 'buddies',
+            listval: req.body.listval,
+            removefromlist: true
+        }, function(err, json){
+            if(err) return next(err);
+
+            res.send(json);
+        });
+    });
     // ignore
     app.put('/user/:username/ignore', checkAuth, function(req, res, next){
         api.users.updateUserList({
@@ -260,6 +274,20 @@ module.exports = function routing(app){
             },
             listkey: 'ignores',
             listval: req.body.listval
+        }, function(err, json){
+            if(err) return next(err);
+
+            res.send(json);
+        });
+    });
+    app.put('/user/:username/unignore', checkAuth, function(req, res, next){
+        api.users.updateUserList({
+            query: {
+                username: req.route.params.username
+            },
+            listkey: 'ignores',
+            listval: req.body.listval,
+            removefromlist: true
         }, function(err, json){
             if(err) return next(err);
 
