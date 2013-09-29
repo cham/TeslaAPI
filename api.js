@@ -27,7 +27,6 @@ app.configure(function(){
       next();
     }
   });
-console.log(routes);
   app.use(routes());
   app.use(express.static(path.join(__dirname, 'public')));
 });
