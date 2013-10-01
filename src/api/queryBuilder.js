@@ -63,7 +63,9 @@ module.exports = {
         'read:comments': function(query){
             query = query || {};
 
-            return this.clean(query);
+            return this.clean({
+                _id: query._id
+            });
         },
         'write:comments': function(query){
             var now = new Date();
@@ -79,7 +81,6 @@ module.exports = {
         },
         'read:users': function(query){
             query = query || {};
-
 
             if(query.password){
                 query.password = crypto
@@ -164,7 +165,7 @@ module.exports = {
             sortBy = options.sortBy || this.sorting[operationName],
             query,
             missingParams;
-        
+
         options = options || {};
         options.size = parseIntOrDefault(options.size, DEFAULTS.setsize);
         options.page = parseIntOrDefault(options.page, DEFAULTS.pagenum);
