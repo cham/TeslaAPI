@@ -26,6 +26,7 @@
  *      /user/:username
  */
 var _ = require('underscore'),
+	bcrypt = require('bcrypt'),
     api = require('../src/api/api');
 
 function checkAuth(res, req, next){
@@ -167,17 +168,27 @@ module.exports = function routing(app){
     // login
     app.post('/login', checkAuth, function(req, res, next){
         api.users.getUsers({
-            query: req.body
+            query: {username: req.body.username}
         }, function(err, json){
             if(err){
                 return next(err);
             }
+            
             if(json.users.length){
-                res.status(200);
-                return res.send(json.users[0]);
+            	var user = json.users[0];
+                bcrypt.compare(req.body.password, user.password, function(err, valid){
+                    if(valid){
+                        res.status(200);
+                        res.send(user);
+                    }else{
+                        res.status(400);
+						res.send({message: 'Invalid credentials'});
+                    }
+                });
+            }else{
+               res.status(400);
+			   res.send({message: 'Invalid credentials'});
             }
-            res.status(400);
-            res.send({message: 'Invalid credentials'});
         });
     });
 

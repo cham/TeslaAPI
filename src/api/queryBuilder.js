@@ -4,7 +4,7 @@
  */
 
 var _ = require('underscore'),
-    crypto = require('crypto');
+    bcrypt = require('bcrypt');
 
 var DEFAULTS = {
         setsize: 50,
@@ -80,14 +80,6 @@ module.exports = {
         'read:users': function(query){
             query = query || {};
 
-
-            if(query.password){
-                query.password = crypto
-                                    .createHash("md5")
-                                    .update(query.password)
-                                    .digest("hex");
-            }
-
             return this.clean({
                 username: query.username,
                 password: query.password
@@ -100,10 +92,7 @@ module.exports = {
             return this.clean({
                 username: query.username,
                 urlname: encodeURIComponent(query.username),
-                password: crypto
-                            .createHash("md5")
-                            .update(query.password)
-                            .digest("hex"),
+                password: bcrypt.hashSync(query.password, bcrypt.genSaltSync(12)),
                 email: query.email,
                 ip: query.ip,
                 last_ip: query.ip,
