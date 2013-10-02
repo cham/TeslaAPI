@@ -43,7 +43,9 @@ module.exports = function routing(app){
 
     app.get('/comment/:commentId', checkAuth, function(req, res, next){
         api.comments.getComments({
-            _id: req.route.params.commentId
+            query: {
+                _id: req.route.params.commentId
+            }
         }, function(err, comment){
             if(err){
                 return next(err);
@@ -54,7 +56,9 @@ module.exports = function routing(app){
 
     app.get('/comment/:commentId/summary', checkAuth, function(req, res, next){
         api.comments.getComments({
-            _id: req.route.params.commentId,
+            query: {
+                _id: req.route.params.commentId,
+            },
             summary: true
         }, function(err, comment){
             if(err){
