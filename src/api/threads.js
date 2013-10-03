@@ -143,8 +143,8 @@ module.exports = function(db){
                             query: {
                                 threadid: threads[0]._id
                             },
-                            skip: cleanOptions.skip,
-                            limit: cleanOptions.limit
+                            page: options.page,
+                            size: options.size
                         }, function(err, comments){
                             if(err) return done(err);
 
