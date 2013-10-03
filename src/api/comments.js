@@ -33,6 +33,16 @@ module.exports = function(db){
                     return;
                 }
 
+                if(cleanOptions.sortBy){
+                    query.sort(cleanOptions.sortBy);
+                }
+                if(cleanOptions.skip){
+                    query.skip(cleanOptions.skip);
+                }
+                if(cleanOptions.limit){
+                    query.limit(cleanOptions.limit);
+                }
+
                 query.exec(function(err, comments){
                     if(err) return done(err);
 
