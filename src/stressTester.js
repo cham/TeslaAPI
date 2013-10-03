@@ -43,8 +43,8 @@ function bonusContent(memo, length){
 }
 
 var testthread = {
-        _id: '5247773fc048248dd8000001',
-        urlname: 'new-thread',
+        _id: '524d7aedd0edb00000000567',
+        urlname: 'long-thread',
         username: 'cham'
     },
     postuser,
@@ -75,15 +75,15 @@ var testthread = {
 
 module.exports = {
     routing: function(app){
-        app.get('/stresstarget', this.newthread);
+        app.get('/stresstarget', this.fastcomment);
         app.get('/stresstest', this.runner);
     },
     runner: function(req, res, next){
         var loadtest = nl.run({
             host: 'localhost',
             port: 3000,
-            timeLimit: 60,
-            targetRps: 200,
+            timeLimit: 15*60,
+            targetRps: 100,
             requestGenerator: function(client){
                 var request = client.request('GET', "/stresstarget?_=" + Math.floor(Math.random()*100000000));
                 request.end();
@@ -134,6 +134,7 @@ module.exports = {
     fastcomment: function(req, res, next){
         api.threads.postCommentInThreadByUser({
             query: {
+                threadid: testthread._id,
                 postedby: testthread.username,
                 content: bonusContent('', Math.floor(Math.random()*750))
             },

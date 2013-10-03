@@ -64,7 +64,9 @@ module.exports = {
             query = query || {};
 
             return this.clean({
-                _id: query._id
+                _id: query._id,
+                threadid: query.threadid,
+                postedby: query.postedby
             });
         },
         'write:comments': function(query){
@@ -72,6 +74,7 @@ module.exports = {
             query = query || {};
 
             return this.clean({
+                threadid: query.threadid,
                 postedby: query.postedby,
                 content: query.content,
                 created: now,
@@ -130,7 +133,7 @@ module.exports = {
             return this.getMissing(required, query);
         },
         'write:comments': function(query){
-            var required = ['postedby', 'content'];
+            var required = ['threadid', 'postedby', 'content'];
 
             return this.getMissing(required, query);
         },
@@ -188,6 +191,9 @@ module.exports = {
         cleanOptions.listkey = options.listkey;
         cleanOptions.listval = options.listval;
         cleanOptions.removefromlist = !!options.removefromlist;
+
+        // distinct
+        cleanOptions.distinctkey = options.distinctkey;
 
         next(null, this.mapping.clean(cleanOptions));
     }

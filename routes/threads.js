@@ -197,11 +197,10 @@ module.exports = function routing(app){
 
     // participated, favourites, hidden, buddy, ignore
     app.get('/user/:username/participated', checkAuth, function(req, res, next){
-        api.threads.getThreadsInUserList(_(req.query || {}).extend({
+        api.threads.getParticipated(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
-            },
-            listkey: 'participated'
+            }
         }), function(err, json){
             if(err) return next(err);
             res.send(json);
@@ -233,11 +232,10 @@ module.exports = function routing(app){
     });
 
     app.get('/user/:username/participated/summary', checkAuth, function(req, res, next){
-        api.threads.getThreadsInUserList(_(req.query || {}).extend({
+        api.threads.getParticipated(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
-            listkey: 'participated',
             summary: true
         }), function(err, json){
             if(err) return next(err);

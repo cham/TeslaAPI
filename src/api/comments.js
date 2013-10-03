@@ -55,9 +55,23 @@ module.exports = function(db){
                         return done(err);
                     }
 
-                    return done(null, comment);
+                    done(null, comment);
                 });
             });
         },
+
+        getDistinct: function(options, done){
+            queryBuilder.buildOptions('read:comments', options, function(err, cleanOptions){
+                if(err) return done(err);
+
+                db.comment
+                    .distinct(cleanOptions.distinctkey, cleanOptions.query)
+                    .exec(function(err, values){
+                        if(err) return done(err);
+
+                        done(null, values);
+                    });
+            });
+        }
     };
 };

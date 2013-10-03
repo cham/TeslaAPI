@@ -7,6 +7,22 @@ var _ = require('underscore'),
     comments = require('./comments'),
     users = require('./users');
 
+function completeMapping(thread){
+    return {
+        _id: thread._id,
+        created: thread.created,
+        last_comment_by: thread.last_comment_by,
+        last_comment_time: thread.last_comment_time,
+        name: thread.name,
+        urlname: thread.urlname,
+        postedby: thread.postedby,
+        numcomments: thread.numcomments,
+        categories: thread.categories,
+        deleted: thread.deleted,
+        closed: thread.closed,
+        nsfw: thread.nsfw
+    };
+}
 function summaryMapping(thread){
     return {
         _id: thread._id,
@@ -39,14 +55,13 @@ module.exports = function(db){
                     query = db.thread.find(cleanOptions.query);
 
                 if(cleanOptions.countonly){
-                    query.count(function (err, count) {
+                    return query.count(function (err, count) {
                         if (err) return done(err);
                         
                         done(null, {
                             totaldocs: count
                         });
                     });
-                    return;
                 }
 
                 // count now takes longer than query for users
@@ -108,44 +123,75 @@ module.exports = function(db){
                     return done(err);
                 }
 
-                var totaldocs = 0,
-                    query = db.thread
-                    .find(cleanOptions.query) //findOne not working here?
-                    .limit(1);
-
-                _(query).clone().exec(function(err, threads){
-                    if(err) return done(err);
-                    if(!threads || !threads.length){
-                        return done(null, []);
-                    }
-
-                    totaldocs = threads[0].comments.length;
-
-                    if(cleanOptions.skip || cleanOptions.limit){
-                        query.slice('comments', [cleanOptions.skip || 0, cleanOptions.limit]);
-                    }
-
-                    // population only below here
-                    if(cleanOptions.populate){
-                        query.populate('comments');
-                    }
-
-                    query.exec(function(err, threads){
+                db.thread
+                    .find(cleanOptions.query)
+                    .limit(1)
+                    .exec(function(err, threads){
                         if(err) return done(err);
+                        if(!threads || !threads.length) return done(null, []);
 
-                        if(cleanOptions.summary){
-                            threads = _(threads).map(summaryMapping);
-                        }
-
-                        done(null,
-                            {
+                        if(!cleanOptions.populate){
+                            return done(null, {
                                 threads: threads,
                                 skip: cleanOptions.skip,
                                 limit: cleanOptions.limit,
-                                totaldocs: totaldocs
+                                totaldocs: threads[0].numcomments
                             });
+                        }
+
+                        commentsApi.getComments({
+                            query: {
+                                threadid: threads[0]._id
+                            },
+                            skip: cleanOptions.skip,
+                            limit: cleanOptions.limit
+                        }, function(err, comments){
+                            if(err) return done(err);
+
+                            var thread = completeMapping(threads[0]);
+
+                            return done(null, {
+                                threads: [_(thread).extend({comments: comments})],
+                                skip: cleanOptions.skip,
+                                limit: cleanOptions.limit,
+                                totaldocs: thread.numcomments
+                            });
+                        });
                     });
-                });
+            });
+        },
+
+        getParticipated: function(options, done){
+            var that = this, // following vars to getThreads only - do not apply to getDistinct
+                summary = !!options.summary,
+                populate = !!options.populate,
+                excludelist = !!options.excludelist,
+                threadquery = options.threadquery,
+                sortBy = options.sortBy;
+
+            delete options.summary;
+            delete options.populate;
+            delete options.excludelist;
+            delete options.sortBy;
+
+            commentsApi.getDistinct({
+                query: {
+                    postedby: options.query.username
+                },
+                distinctkey: 'threadid'
+            }, function(err, threadids){
+                if(err) done(err);
+
+                that.getThreads({
+                    query: _(threadquery || {}).extend({
+                        _id: { $in: threadids }
+                    }),
+                    page: options.page,
+                    size: options.size,
+                    summary: summary,
+                    populate: populate,
+                    sortBy: sortBy
+                }, done);
             });
         },
 
@@ -211,6 +257,7 @@ module.exports = function(db){
 
                     return that.postCommentInThreadByUser({
                         query: {
+                            threadid: thread._id,
                             postedby: options.query.postedby,
                             content: options.query.content
                         },
@@ -236,12 +283,11 @@ module.exports = function(db){
                 user = options.user;
 
             queryBuilder.buildOptions('write:comments', options, function(err, cleanOptions){
-                if(err){
-                    return done(err);
-                }
+                if(err) return done(err);
 
                 commentsApi.postComment({
                     query: {
+                        threadid: cleanOptions.query.threadid,
                         postedby: cleanOptions.query.postedby,
                         content: cleanOptions.query.content
                     }
@@ -252,12 +298,7 @@ module.exports = function(db){
 
                     thread.last_comment_by = cleanOptions.query.postedby;
                     thread.last_comment_time = new Date();
-                    thread.comments.push(comment._id);
                     thread.numcomments = (thread.numcomments || 0) + 1;
-
-                    if(user.participated.indexOf(thread._id) === -1){
-                        user.participated.push(thread._id);
-                    }
 
                     user.comments_count = (user.comments_count || 0) + 1;
                     user.save();
@@ -298,6 +339,7 @@ module.exports = function(db){
 
                     return that.postCommentInThreadByUser({
                         query: {
+                            threadid: thread._id,
                             postedby: options.query.postedby,
                             content: options.query.content
                         },

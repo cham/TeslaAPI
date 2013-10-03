@@ -10,7 +10,6 @@ var mongoose = require('mongoose'),
         nsfw: Boolean,
         closed: Boolean,
         deleted: Boolean,
-        comments: [{type: String, ref: 'Comment'}],
         numcomments: {type: Number, default: 0}
     });
 
