@@ -160,6 +160,31 @@ module.exports = function(db){
             });
         },
 
+        ping: function(options, done){
+            var ip = options.ip;
+            delete options.ip;
+
+            this.getUser({
+                query: options.query
+            }, function(err, user){
+                if(err) return done(err);
+                if(!user) return done(new Error('user not found'));
+
+                user.last_ip = ip;
+                user.last_login = new Date();
+                if(!user.known_ips){
+                    user.known_ips = [];
+                }
+                if(user.known_ips.indexOf(ip) === -1){
+                    user.known_ips.push(ip);
+                }
+
+                user.save(function(err){
+                    if(err) return done(err);
+                    done(null, user);
+                });
+            });
+        },
 
         deleteUser: function(options, done){
             db.user

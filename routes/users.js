@@ -144,6 +144,18 @@ module.exports = function routing(app){
         });
     });
 
+    app.get('/user/:username/ping', checkAuth, function(req, res, next){
+        api.users.ping({
+            query: {
+                username: req.route.params.username,
+            },
+            ip: req.connection.remoteAddress
+        }, function(err, json){
+            if(err) return next(err);
+            res.send(json);
+        });
+    });
+
     // post
     // new user
     app.post('/user', checkAuth, function(req, res, next){
