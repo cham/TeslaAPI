@@ -34,7 +34,7 @@ module.exports = {
             query = query || {};
 
             if(query.name){
-                query.name = new RegExp(query.name);
+                query.name = new RegExp(query.name, 'i');
             }
 
             return this.clean({
