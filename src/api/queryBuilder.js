@@ -150,7 +150,8 @@ module.exports = {
     },
 
     sorting: {
-        'read:threads': '-last_comment_time'
+        'read:threads': '-last_comment_time',
+        'read:comments': 'created'
     },
 
     buildOptions: function(operationName, options, next){

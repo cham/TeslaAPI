@@ -2,7 +2,8 @@
  * Tesla api methods for accessing and manipulating comment data
  */
 var _ = require('underscore'),
-    queryBuilder = require('./queryBuilder');
+    queryBuilder = require('./queryBuilder'),
+    Levenshtein = require('levenshtein');
 
 function summaryMapping(comment){
     return {
@@ -81,6 +82,31 @@ module.exports = function(db){
 
                         done(null, values);
                     });
+            });
+        },
+
+        editComment: function(options, done){
+            var update = options.update || {},
+                content = update.content;
+
+            this.getComments(options, function(err, comments){
+                if(err) return done(err);
+
+                if(!comments || !comments.length) return done(new Error('Comment not found'));
+                var comment = comments[0],
+                    l;
+
+                if(content){
+                    l = new Levenshtein(comment.content, content);
+                    comment.edit_percent += ((l.distance/content.length)*100);
+                    comment.content = content;
+                }
+
+                comment.save(function(err){
+                    if(err) return done(err);
+
+                    done(null, comment);
+                });
             });
         }
     };

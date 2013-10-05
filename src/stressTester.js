@@ -45,7 +45,7 @@ function bonusContent(memo, length){
 var testthread = {
         _id: '524d7aedd0edb00000000567',
         urlname: 'long-thread',
-        username: 'cham'
+        username: 'newcham'
     },
     postuser,
     postthread;
@@ -75,7 +75,7 @@ var testthread = {
 
 module.exports = {
     routing: function(app){
-        app.get('/stresstarget', this.fastcomment);
+        app.get('/stresstarget', this.randomcomment);
         app.get('/stresstest', this.runner);
     },
     runner: function(req, res, next){
@@ -83,7 +83,7 @@ module.exports = {
             host: 'localhost',
             port: 3000,
             timeLimit: 15*60,
-            targetRps: 100,
+            targetRps: 50,
             requestGenerator: function(client){
                 var request = client.request('GET', "/stresstarget?_=" + Math.floor(Math.random()*100000000));
                 request.end();
@@ -146,6 +146,39 @@ module.exports = {
             }
             res.send({
                 comment: comment
+            });
+        });
+    },
+
+    randomcomment: function(req, res, next){
+        api.threads.getThreads({
+            countonly: true
+        }, function(err, data){
+            if(err) return next(err);
+
+            var i = Math.floor(Math.random() * data.totaldocs);
+
+            api.threads.getThreads({
+                size: 1,
+                page: i
+            }, function(err, json){
+                if(err) return next(err);
+
+                api.threads.postCommentInThreadByUser({
+                    query: {
+                        threadid: json.threads[0]._id,
+                        postedby: testthread.username,
+                        content: bonusContent('', Math.floor(Math.random()*750))
+                    },
+                    user: postuser,
+                    thread: json.threads[0]
+                }, function(err, comment){
+                    if(err) return next(err);
+
+                    res.send({
+                        comment: comment
+                    });
+                });
             });
         });
     }

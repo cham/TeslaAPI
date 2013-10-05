@@ -68,4 +68,22 @@ module.exports = function routing(app){
         });
     });
 
+    app.put('/comment/:commentId', checkAuth, function(req, res, next){
+        var body = req.body;
+
+        api.comments.editComment({
+            query: {
+                _id: req.route.params.commentId,
+                postedby: body.username
+            },
+            update: {
+                content: body.content
+            }
+        }, function(err, comment){
+            if(err) return next(err);
+
+            res.send(comment);
+        });
+    });
+
 };
