@@ -68,7 +68,7 @@ module.exports = function(db){
                 async.parallel({
                     totaldocs: function(asyncDone){
                         _(query).clone().count(function (err, count) {
-                            if (err) return asyncDone(err);
+                            if (err) return asyncDone(null, 0);
 
                             asyncDone(null, count);
                         });
@@ -90,7 +90,7 @@ module.exports = function(db){
                         }
 
                         query.exec(function(err, threads){
-                            if(err) return asyncDone(err);
+                            if(err) return asyncDone(null, []);
 
                             if(!threads || !threads.length){
                                 return asyncDone(null, []);
@@ -119,9 +119,7 @@ module.exports = function(db){
         // retrieves a single document, sorting is disabled, and paging is applied to the comments
         getThread: function(options, done){
             queryBuilder.buildOptions('read:threads', options, function(err, cleanOptions){
-                if(err){
-                    return done(err);
-                }
+                if(err) return done(err);
 
                 db.thread
                     .find(cleanOptions.query)

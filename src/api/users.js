@@ -168,7 +168,7 @@ module.exports = function(db){
                 query: options.query
             }, function(err, user){
                 if(err) return done(err);
-                if(!user) return done(new Error('user not found'));
+                if(!user || !user.save) return done(new Error('user not found'));
 
                 user.last_ip = ip;
                 user.last_login = new Date();

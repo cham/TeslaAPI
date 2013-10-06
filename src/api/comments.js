@@ -3,6 +3,7 @@
  */
 var _ = require('underscore'),
     queryBuilder = require('./queryBuilder'),
+    pagingMutator = require('./pagingMutator'),
     Levenshtein = require('levenshtein');
 
 function summaryMapping(comment){
@@ -47,8 +48,15 @@ module.exports = function(db){
                 query.exec(function(err, comments){
                     if(err) return done(err);
 
-                    if(!comments){
+                    if(!comments || !comments[0]){
                         return done(null,{});
+                    }
+
+                    if(cleanOptions.skip){
+                        pagingMutator.setRangeStart(cleanOptions, comments[0].created);
+                    }
+                    if(comments.length === cleanOptions.limit){
+                        pagingMutator.setRangeEnd(cleanOptions, comments[comments.length-1].created);
                     }
 
                     done(null, cleanOptions.summary ? _(comments).map(summaryMapping) : comments);

@@ -4,7 +4,8 @@
  */
 
 var _ = require('underscore'),
-    bcrypt = require('bcrypt');
+    bcrypt = require('bcrypt'),
+    pagingMutator = require('./pagingMutator');
 
 var DEFAULTS = {
         setsize: 50,
@@ -196,7 +197,15 @@ module.exports = {
         // distinct
         cleanOptions.distinctkey = options.distinctkey;
 
-        next(null, this.mapping.clean(cleanOptions));
+        // clean
+        cleanOptions = this.mapping.clean(cleanOptions);
+
+        // mutate paging for comments
+        if(operationName === 'read:comments'){
+            cleanOptions = pagingMutator.mutate(cleanOptions);
+        }
+
+        next(null, cleanOptions);
     }
 
 };

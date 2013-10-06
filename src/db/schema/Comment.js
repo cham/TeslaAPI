@@ -11,5 +11,6 @@ var mongoose = require('mongoose'),
 CommentSchema.index({threadid:  1});
 CommentSchema.index({threadid: -1});
 CommentSchema.index({created: -1});
+CommentSchema.index({created: 1});
 
 module.exports = CommentSchema;
