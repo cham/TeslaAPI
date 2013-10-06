@@ -102,11 +102,16 @@ module.exports = function(db){
 
                 if(!comments || !comments.length) return done(new Error('Comment not found'));
                 var comment = comments[0],
+                    longestContent = comment.content.length,
                     l;
+
+                if(content.length > longestContent){
+                    longestContent = content.length;
+                }
 
                 if(content){
                     l = new Levenshtein(comment.content, content);
-                    comment.edit_percent += ((l.distance/content.length)*100);
+                    comment.edit_percent += ((l.distance/longestContent)*100);
                     comment.content = content;
                 }
 
