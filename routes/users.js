@@ -184,7 +184,7 @@ module.exports = function routing(app){
         }, function(err, user){
             if(err) return next(err);
 
-            if(!bcrypt.compareSync(req.body.password, user.password)){
+            if(!req.body.password || !user.password || !bcrypt.compareSync(req.body.password, user.password)){
                 return res.send({message: 'Invalid credentials'}, 401);
             }
 
