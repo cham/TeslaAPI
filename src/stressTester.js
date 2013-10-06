@@ -43,30 +43,30 @@ function bonusContent(memo, length){
 }
 
 var testthread = {
-        _id: '524d7aedd0edb00000000567',
-        urlname: 'long-thread',
-        username: 'newcham'
+        _id: '5251463491d0150000000002',
+        urlname: 'Long-thread-is-long',
+        username: 'spambot'
     },
     postuser,
     postthread;
 
-    api.users.getUser({
-        query: {
-            username: testthread.username
-        }
-    }, function(err, user){
-        if(err) return done(err);
-        postuser = user;
-    });
+api.users.getUser({
+    query: {
+        username: testthread.username
+    }
+}, function(err, user){
+    if(err) return done(err);
+    postuser = user;
+});
 
-    api.threads.getThread({
-        query: {
-            urlname: testthread.urlname
-        }
-    }, function(err, thread){
-        if(err) return done(err);
-        postthread = thread.threads[0];
-    });
+api.threads.getThread({
+    query: {
+        urlname: testthread.urlname
+    }
+}, function(err, thread){
+    if(err) return done(err);
+    postthread = thread.threads[0];
+});
 
 // current yay stats
 // users: 2875
@@ -75,15 +75,15 @@ var testthread = {
 
 module.exports = {
     routing: function(app){
-        app.get('/stresstarget', this.randomcomment);
+        app.get('/stresstarget', this.fastcomment);
         app.get('/stresstest', this.runner);
     },
     runner: function(req, res, next){
         var loadtest = nl.run({
             host: 'localhost',
             port: 3000,
-            timeLimit: 15*60,
-            targetRps: 50,
+            timeLimit: 60*60,
+            targetRps: 100,
             requestGenerator: function(client){
                 var request = client.request('GET', "/stresstarget?_=" + Math.floor(Math.random()*100000000));
                 request.end();
