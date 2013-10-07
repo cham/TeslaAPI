@@ -144,6 +144,18 @@ module.exports = function routing(app){
         });
     });
 
+    app.get('/user/:username/inbox', checkAuth, function(req, res, next){
+        api.messages.getMessages({
+            query: {
+                recipient: req.route.params.username,
+            },
+            limit: 50
+        }, function(err, json){
+            if(err) return next(err);
+            res.send(json);
+        });
+    });
+
     app.get('/user/:username/ping', checkAuth, function(req, res, next){
         api.users.ping({
             query: {

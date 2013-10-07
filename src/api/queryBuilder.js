@@ -83,6 +83,23 @@ module.exports = {
                 points: 0
             });
         },
+        'read:messages': function(query){
+            query = query || {};
+
+            return this.clean({
+                _id: query._id,
+                recipient: query.recipient,
+                sender: query.sender
+            });
+        },
+        'write:messages': function(query){
+            query = query || {};
+
+            return this.clean({
+                _id: query._id,
+                content: query.content
+            });
+        },
         'read:users': function(query){
             query = query || {};
 
@@ -152,7 +169,8 @@ module.exports = {
 
     sorting: {
         'read:threads': '-last_comment_time',
-        'read:comments': 'created'
+        'read:comments': 'created',
+        'read:messages': 'created'
     },
 
     buildOptions: function(operationName, options, next){
