@@ -3,7 +3,7 @@
  */
 var _ = require('underscore'),
     queryBuilder = require('./queryBuilder'),
-    pagingMutator = require('./pagingMutator'),
+    threadsRange = require('./threadsRange'),
     Levenshtein = require('levenshtein');
 
 function summaryMapping(comment){
@@ -16,13 +16,16 @@ function summaryMapping(comment){
 }
 
 module.exports = function(db){
+
+    var threadRangeApi = threadsRange(db);
+
     return {
         getComments: function(options, done){
             queryBuilder.buildOptions('read:comments', options, function(err, cleanOptions){
                 if(err) return done(err);
 
                 var query = db.comment
-                    .find(cleanOptions.query);
+                                .find(cleanOptions.query);
 
                 if(cleanOptions.countonly){
                     query.count(function (err, count) {
@@ -52,11 +55,30 @@ module.exports = function(db){
                         return done(null,{});
                     }
 
-                    if(cleanOptions.skip){
-                        pagingMutator.setRangeStart(cleanOptions, comments[0].created);
-                    }
-                    if(comments.length === cleanOptions.limit){
-                        pagingMutator.setRangeEnd(cleanOptions, comments[comments.length-1].created);
+                    if(cleanOptions.skip && cleanOptions.limit){
+                        threadRangeApi.setRange({
+                            threadid: cleanOptions.query.threadid,
+                            skip: cleanOptions.skip,
+                            limit: cleanOptions.limit,
+                            start_date: comments[0].created,
+                            end_date: comments[comments.length-1].created,
+                            partial: comments.length !== cleanOptions.limit
+                        });
+/*
+                        threadRangeApi.setStart({
+                            threadid: cleanOptions.query.threadid,
+                            skip: cleanOptions.skip,
+                            time: comments[0].created
+                        });
+
+                        threadRangeApi.setEnd({
+                            threadid: cleanOptions.query.threadid,
+                            skip: cleanOptions.skip,
+                            limit: cleanOptions.limit,
+                            time: comments[comments.length-1].created,
+                            partial: comments.length !== cleanOptions.limit
+                        });
+*/
                     }
 
                     done(null, cleanOptions.summary ? _(comments).map(summaryMapping) : comments);
@@ -70,9 +92,11 @@ module.exports = function(db){
                     that = this;
 
                 comment.save(function(err){
-                    if(err){
-                        return done(err);
-                    }
+                    if(err) return done(err);
+
+                    threadRangeApi.updatePartial({
+                        threadid: cleanOptions.query.threadid
+                    });
 
                     done(null, comment);
                 });
