@@ -202,10 +202,12 @@ module.exports = {
 
         // mutate paging for comments
         if(operationName === 'read:comments'){
-            cleanOptions = pagingMutator.mutate(cleanOptions);
+            cleanOptions = pagingMutator.mutate(cleanOptions, function(mutatedOptions){
+                next(null, mutatedOptions);
+            });
+        }else{
+            next(null, cleanOptions);
         }
-
-        next(null, cleanOptions);
     }
 
 };
