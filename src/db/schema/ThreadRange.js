@@ -5,7 +5,8 @@ var mongoose = require('mongoose'),
         limit: Number,
         start_date: Date,
         end_date: Date,
-        partial: {type: Boolean, default: true}
+        partial: {type: Boolean, default: true},
+        length: Number
     });
 
 

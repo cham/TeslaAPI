@@ -55,33 +55,23 @@ module.exports = function(db){
                         return done(null,{});
                     }
 
-                    if(cleanOptions.skip && cleanOptions.limit){
+                    if(!cleanOptions.query._id && (_.isNumber(cleanOptions.skip) || _.isNumber(cleanOptions.limit))){
                         threadRangeApi.setRange({
                             threadid: cleanOptions.query.threadid,
                             skip: cleanOptions.skip,
                             limit: cleanOptions.limit,
                             start_date: comments[0].created,
                             end_date: comments[comments.length-1].created,
-                            partial: comments.length !== cleanOptions.limit
-                        });
-/*
-                        threadRangeApi.setStart({
-                            threadid: cleanOptions.query.threadid,
-                            skip: cleanOptions.skip,
-                            time: comments[0].created
-                        });
+                            partial: comments.length !== cleanOptions.limit,
+                            length: comments.length
+                        }, function(err){
+                            if(err) return done(err);
 
-                        threadRangeApi.setEnd({
-                            threadid: cleanOptions.query.threadid,
-                            skip: cleanOptions.skip,
-                            limit: cleanOptions.limit,
-                            time: comments[comments.length-1].created,
-                            partial: comments.length !== cleanOptions.limit
+                            done(null, cleanOptions.summary ? _(comments).map(summaryMapping) : comments);
                         });
-*/
+                    }else{
+                        done(null, cleanOptions.summary ? _(comments).map(summaryMapping) : comments);
                     }
-
-                    done(null, cleanOptions.summary ? _(comments).map(summaryMapping) : comments);
                 });
             });
         },
