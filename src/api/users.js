@@ -2,6 +2,7 @@
  * Tesla api methods for accessing and manipulating user data
  */
 var _ = require('underscore'),
+    messages = require('./messages'),
     queryBuilder = require('./queryBuilder');
 
 function summaryMapping(user){
@@ -22,6 +23,8 @@ function summaryMapping(user){
 }
 
 module.exports = function(db){
+    var messagesApi = messages(db);
+
     return {
         getUsers: function(options, done){
             queryBuilder.buildOptions('read:users', options, function(err, cleanOptions){
@@ -60,15 +63,12 @@ module.exports = function(db){
                 db.user
                     .findOne(cleanOptions.query)
                     .exec(function(err, user){
-                        if(err){
-                            return done(err);
-                        }
+                        if(err) return done(err);
+                        if(!user || !user.activated || user.banned) return done(null,{});
 
-                        if(!user || !user.activated || user.banned){
-                            return done(null,{});
-                        }
+                        var userData = cleanOptions.summary ? summaryMapping(user) : user;
 
-                        done(null, cleanOptions.summary ? summaryMapping(user) : user);
+                        done(null, userData);
                     });
             });
         },
@@ -181,7 +181,16 @@ module.exports = function(db){
 
                 user.save(function(err){
                     if(err) return done(err);
-                    done(null, user);
+
+                    messagesApi.getInboxSize(user.username, function(err, json){
+                        if(err) return done(err);
+
+                        var userData = user.toJSON();
+
+                        if(json.totaldocs) userData.inbox = json.totaldocs;
+
+                        done(null, userData);
+                    });
                 });
             });
         },

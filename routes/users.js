@@ -13,6 +13,7 @@
  *      /user/:username/ignores/summary
  *      /user/:username/inbox
  *      /user/:username/outbox
+ *      /user/:username/message/:messageid
  *      /user/:username/ping
  *
  * POST
@@ -24,6 +25,10 @@
  *      /user/:username/buddy
  *      /user/:username/ignore
  *      /user/:username/favourite
+ *      /user/:username/messages/read
+ *      /user/:username/messages/unread
+ *      /user/:username/messages/recipient/delete
+ *      /user/:username/messages/recipient/undelete
  * 
  * DELETE
  *      /users
@@ -39,6 +44,20 @@ function checkAuth(res, req, next){
 }
 
 module.exports = function routing(app){
+
+    function bulkUpdate(query, ids, bulkaction, done){
+        api.messages.bulkUpdate({
+            query: query,
+            ids: ids,
+            bulkaction: function(data){
+                bulkaction(data);
+            },
+        }, function(err, json){
+            if(err) return done(err);
+
+            done(null, json);
+        });
+    }
 
     // users
     app.get('/users', checkAuth, function(req, res, next){
@@ -152,7 +171,8 @@ module.exports = function routing(app){
     app.get('/user/:username/inbox', checkAuth, function(req, res, next){
         api.messages.getMessages({
             query: {
-                recipient: req.route.params.username
+                recipient: req.route.params.username,
+                recipient_deleted: false
             },
             limit: 50
         }, function(err, json){
@@ -164,12 +184,33 @@ module.exports = function routing(app){
     app.get('/user/:username/outbox', checkAuth, function(req, res, next){
         api.messages.getMessages({
             query: {
-                sender: req.route.params.username
+                sender: req.route.params.username,
+                sender_deleted: false
             },
             limit: 50
         }, function(err, json){
             if(err) return next(err);
             res.send(json);
+        });
+    });
+
+    app.get('/user/:username/message/:messageid', checkAuth, function(req, res, next){
+        var username = req.route.params.username;
+
+        api.messages.getMessages({
+            query: {
+                _id: req.route.params.messageid
+            },
+            limit: 1
+        }, function(err, json){
+            if(err) return next(err);
+
+            if(!json || !json.messages || !json.messages.length) return res.send('', 401);
+            var message = json.messages[0];
+
+            if(message.sender !== username && message.recipient !== username) return res.send('', 401);
+
+            res.send(message);
         });
     });
 
@@ -217,7 +258,14 @@ module.exports = function routing(app){
                 return res.send({message: 'Invalid credentials'}, 401);
             }
 
-            res.send(user);
+            api.messages.getInboxSize(user.username, function(err, json){
+                if(err) return done(err);
+
+                var userData = user.toJSON();
+
+                if(json.totaldocs) userData.inbox = json.totaldocs;
+                res.send(userData);
+            });
         });
     });
 
@@ -367,6 +415,77 @@ module.exports = function routing(app){
             if(err) return next(err);
 
             res.send(json);
+        });
+    });
+    // read message
+    app.put('/user/:username/message/:messageid/read', checkAuth, function(req, res, next){
+        api.messages.readMessage({
+            query: {
+                recipient: req.route.params.username,
+                _id: req.route.params.messageid
+            }
+        }, function(err, message){
+            if(err) return next(err);
+            
+            if(!message) return res.send('', 401);
+
+            res.send(message);
+        });
+    });
+    // batch read messages
+    app.put('/user/:username/messages/read', checkAuth, function(req, res, next){
+        var username = req.route.params.username;
+
+        bulkUpdate({ recipient: username }, req.body.ids, function(message){
+            message.read = true;
+        }, function(err, messages){
+            if(err) return next(err);
+
+            res.send({
+                messages: messages
+            });
+        });
+    });
+    // batch unread messages
+    app.put('/user/:username/messages/unread', checkAuth, function(req, res, next){
+        var username = req.route.params.username;
+
+        bulkUpdate({ recipient: username }, req.body.ids, function(message){
+            message.read = false;
+        }, function(err, messages){
+            if(err) return next(err);
+
+            res.send({
+                messages: messages
+            });
+        });
+    });
+    // batch recipient delete messages
+    app.put('/user/:username/messages/recipient/delete', checkAuth, function(req, res, next){
+        var username = req.route.params.username;
+
+        bulkUpdate({ recipient: username }, req.body.ids, function(message){
+            message.recipient_deleted = true;
+        }, function(err, messages){
+            if(err) return next(err);
+
+            res.send({
+                messages: messages
+            });
+        });
+    });
+    // batch sender delete messages
+    app.put('/user/:username/messages/sender/delete', checkAuth, function(req, res, next){
+        var username = req.route.params.username;
+
+        bulkUpdate({ sender: username }, req.body.ids, function(message){
+            message.sender_deleted = true;
+        }, function(err, messages){
+            if(err) return next(err);
+
+            res.send({
+                messages: messages
+            });
         });
     });
 
