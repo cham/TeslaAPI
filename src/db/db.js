@@ -20,7 +20,7 @@ mongoose.connect('mongodb://localhost/tesladb');
 module.exports = {
     user: userModel,
     comment: commentModel,
-    threadRange: threadRangeModel
+    threadRange: threadRangeModel,
     thread: threadModel,
     message: messageModel
 };

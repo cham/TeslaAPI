@@ -13,7 +13,7 @@ module.exports = {
 
     users: users(db),
     comments: comments(db),
-    threadsRange: threadsRange(db)
+    threadsRange: threadsRange(db),
     messages: messages(db),
     threads: threads(db)
 
