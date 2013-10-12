@@ -11,10 +11,14 @@
  *      /user/:username/buddies/summary
  *      /user/:username/ignores
  *      /user/:username/ignores/summary
+ *      /user/:username/inbox
+ *      /user/:username/outbox
+ *      /user/:username/ping
  *
  * POST
  *      /user
  *      /login
+ *      /user/:username/sendmessage
  * PUT
  *      /user/:username/hide
  *      /user/:username/buddy
@@ -27,6 +31,7 @@
  */
 var _ = require('underscore'),
     bcrypt = require('bcrypt'),
+    async = require('async'),
     api = require('../src/api/api');
 
 function checkAuth(res, req, next){
@@ -147,7 +152,19 @@ module.exports = function routing(app){
     app.get('/user/:username/inbox', checkAuth, function(req, res, next){
         api.messages.getMessages({
             query: {
-                recipient: req.route.params.username,
+                recipient: req.route.params.username
+            },
+            limit: 50
+        }, function(err, json){
+            if(err) return next(err);
+            res.send(json);
+        });
+    });
+
+    app.get('/user/:username/outbox', checkAuth, function(req, res, next){
+        api.messages.getMessages({
+            query: {
+                sender: req.route.params.username
             },
             limit: 50
         }, function(err, json){
@@ -202,6 +219,41 @@ module.exports = function routing(app){
 
             res.send(user);
         });
+    });
+
+    // send message
+    app.post('/user/:username/sendmessage', checkAuth, function(req, res, next){
+        var body = req.body || {},
+            recipients = body.recipients || [],
+            errors = [],
+            messages = [];
+
+        async.parallel(
+            _(recipients).reduce(function(memo, recipient){
+                memo.push(function(done){
+                    api.messages.sendMessage({
+                        query: {
+                            sender: req.route.params.username,
+                            recipient: recipient,
+                            subject: body.subject,
+                            content: body.content
+                        }
+                    }, function(err, message){
+                        if(err) return done(err);
+
+                        done(null, message);
+                    });
+                });
+                return memo;
+            }, []),
+            function(err, messages){
+                if(err) return next(err);
+
+                res.send({
+                    messages: messages
+                });
+            }
+        );
     });
 
      // NB - should these be PATCH instead of PUT?

@@ -4,6 +4,7 @@ var mongoose = require('mongoose'),
         sender: String,
         created: Date,
         read: {type: Boolean, default: false},
+        subject: String,
         content: String
     });
 

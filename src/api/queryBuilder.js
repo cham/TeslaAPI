@@ -97,7 +97,11 @@ module.exports = {
 
             return this.clean({
                 _id: query._id,
-                content: query.content
+                sender: query.sender,
+                recipient: query.recipient,
+                subject: query.subject,
+                content: query.content,
+                created: new Date()
             });
         },
         'read:users': function(query){
@@ -164,13 +168,18 @@ module.exports = {
             var required = ['username'];
 
             return this.getMissing(required, query);
+        },
+        'write:messages': function(query){
+            var required = ['sender', 'recipient', 'subject', 'content'];
+
+            return this.getMissing(required, query);
         }
     },
 
     sorting: {
         'read:threads': '-last_comment_time',
         'read:comments': 'created',
-        'read:messages': 'created'
+        'read:messages': '-created'
     },
 
     buildOptions: function(operationName, options, next){
