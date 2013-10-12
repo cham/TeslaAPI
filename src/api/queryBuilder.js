@@ -83,6 +83,38 @@ module.exports = {
                 points: 0
             });
         },
+        'read:messages': function(query){
+            query = query || {};
+
+            return this.clean({
+                _id: query._id,
+                recipient: query.recipient,
+                sender: query.sender,
+                read: query.read,
+                recipient_deleted: query.recipient_deleted,
+                sender_deleted: query.sender_deleted
+            });
+        },
+        'write:messages': function(query){
+            query = query || {};
+
+            return this.clean({
+                _id: query._id,
+                sender: query.sender,
+                recipient: query.recipient,
+                subject: query.subject,
+                content: query.content,
+                created: new Date()
+            });
+        },
+        'update:messages': function(query){
+            query = query || {};
+
+            return this.clean({
+                sender: query.sender,
+                recipient: query.recipient
+            });
+        },
         'read:users': function(query){
             query = query || {};
 
@@ -147,12 +179,18 @@ module.exports = {
             var required = ['username'];
 
             return this.getMissing(required, query);
+        },
+        'write:messages': function(query){
+            var required = ['sender', 'recipient', 'subject', 'content'];
+
+            return this.getMissing(required, query);
         }
     },
 
     sorting: {
         'read:threads': '-last_comment_time',
-        'read:comments': 'created'
+        'read:comments': 'created',
+        'read:messages': '-created'
     },
 
     buildOptions: function(operationName, options, next){
@@ -189,10 +227,15 @@ module.exports = {
         cleanOptions.populate = !!options.populate;
         cleanOptions.countonly = !!options.countonly;
 
-        // list updating
+        // user list updating
         cleanOptions.listkey = options.listkey;
         cleanOptions.listval = options.listval;
         cleanOptions.removefromlist = !!options.removefromlist;
+
+        // array of ids
+        if(_.isArray(options.ids)){
+            cleanOptions.query._id = { $in: options.ids };
+        }
 
         // distinct
         cleanOptions.distinctkey = options.distinctkey;
