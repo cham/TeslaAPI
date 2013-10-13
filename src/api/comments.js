@@ -62,7 +62,7 @@ module.exports = function(db){
                             limit: cleanOptions.limit,
                             start_date: comments[0].created,
                             end_date: comments[comments.length-1].created,
-                            partial: comments.length !== cleanOptions.limit,
+                            partial: comments.length < cleanOptions.limit,
                             length: comments.length
                         }, function(err){
                             if(err) return done(err);
