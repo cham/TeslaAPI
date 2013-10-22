@@ -135,6 +135,25 @@ module.exports = function(db){
                     done(null, comment);
                 });
             });
+        },
+
+        addPoint: function(options, done){
+            var numpoints = options.numpoints,
+                comment;
+
+            this.getComments(options, function(err, comments){
+                if(err) return done(err);
+                if(!comments.length) return done(new Error('comment not found'));
+
+                comment = comments[0];
+                comment.points += numpoints;
+
+                comment.save(function(err){
+                    if(err) return done(err);
+
+                    done(null, comment);
+                });
+            });
         }
     };
 };

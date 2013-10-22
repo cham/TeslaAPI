@@ -10,7 +10,8 @@ var mongoose = require('mongoose'),
         nsfw: Boolean,
         closed: Boolean,
         deleted: Boolean,
-        numcomments: {type: Number, default: 0}
+        numcomments: {type: Number, default: 0},
+        points: Number
     });
 
 ThreadSchema.index({last_comment_time: -1});
