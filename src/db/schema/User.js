@@ -14,7 +14,6 @@ var mongoose = require('mongoose'),
         modified: Date,
         view_html: {type: Boolean, default: true},
         random_titles: {type: Boolean, default: true},
-        timezone: {type: Number, default: 0},
         emoticon: String,
         custom_css: String,
         threads_count: {type: Number, default: 0},
@@ -29,7 +28,34 @@ var mongoose = require('mongoose'),
         favourites: [String],
         hidden: [String],
         buddies: [String],
-        ignores: [String]
+        ignores: [String],
+        realname: String,
+        location: String,
+        about: String,
+        website1: String,
+        website2: String,
+        website3: String,
+        flickr: String,
+        facebook: String,
+        aim: String,
+        gchat: String,
+        lastfm: String,
+        msn: String,
+        twitter: String,
+
+/*
+sfwtitle
+fixedchatsize
+hideenemyposts
+customcssurl
+customjsurl
+threadsperpage
+    value
+    selected
+commentsperpage
+    value
+    selected
+*/
     });
 
 module.exports = UserSchema;
