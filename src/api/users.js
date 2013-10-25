@@ -195,6 +195,47 @@ module.exports = function(db){
             });
         },
 
+        spendPoint: function(options, done){
+            var now = new Date(),
+                timelimit = 1000 * 60 * 60 * 8;
+
+            this.getUser(options, function(err, user){
+                if(err) return next(err);
+                if(!user) return next(new Error('user not found'));
+
+                if(user.lastpointusage){
+                    if((now.getTime() - user.lastpointusage.getTime()) < timelimit){
+                        return done(new Error('lastpointusage less than ' + timelimit + 'ms ago'));
+                    }
+                }
+
+                user.lastpointusage = now;
+
+                user.save(function(err){
+                    if(err) return done(err);
+
+                    done(null, user);
+                });
+            });
+        },
+
+        addPoint: function(options, done){
+            var numpoints = options.numpoints;
+
+            this.getUser(options, function(err, user){
+                if(err) return next(err);
+                if(!user) return next(new Error('user not found'));
+
+                user.points += numpoints;
+
+                user.save(function(err){
+                    if(err) return done(err);
+
+                    done(null, user);
+                });
+            });
+        },
+
         deleteUser: function(options, done){
             db.user
                 .findOne({username: options.username})

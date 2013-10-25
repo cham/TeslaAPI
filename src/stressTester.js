@@ -43,8 +43,8 @@ function bonusContent(memo, length){
 }
 
 var testthread = {
-        _id: '52515eff9b0360000000053b',
-        urlname: '418bd1008f805f8548355',
+        _id: '5259e08dedffc2ef1f000077',
+        urlname: 'Spambot-thread',
         username: 'spambot'
     },
     postuser,
