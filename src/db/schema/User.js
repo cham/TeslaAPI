@@ -14,7 +14,6 @@ var mongoose = require('mongoose'),
         modified: Date,
         view_html: {type: Boolean, default: true},
         random_titles: {type: Boolean, default: true},
-        timezone: {type: Number, default: 0},
         emoticon: String,
         custom_css: String,
         threads_count: {type: Number, default: 0},
@@ -29,7 +28,15 @@ var mongoose = require('mongoose'),
         favourites: [String],
         hidden: [String],
         buddies: [String],
-        ignores: [String]
+        ignores: [String],
+        realname: String,
+        location: String,
+        about: String,
+        websites: [{
+            name: String,
+            url: String
+        }],
+        fixed_chat_size: Boolean
     });
 
 module.exports = UserSchema;

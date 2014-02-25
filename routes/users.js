@@ -25,6 +25,8 @@
  *      /user/:username/buddy
  *      /user/:username/ignore
  *      /user/:username/favourite
+ *      /user/:username/changepassword
+ *      /user/:username/personaldetails
  *      /user/:username/messages/read
  *      /user/:username/messages/unread
  *      /user/:username/messages/recipient/delete
@@ -486,6 +488,87 @@ module.exports = function routing(app){
             res.send({
                 messages: messages
             });
+        });
+    });
+    // change password
+    app.put('/user/:username/changepassword', checkAuth, function(req, res, next){
+        var username = req.route.params.username,
+            body = req.body;
+
+        api.users.getUser({
+            query: {username: username}
+        }, function(err, user){
+            if(err) return next(err);
+
+            if(!body.password || !user.password || !bcrypt.compareSync(body.password, user.password)){
+                return res.send({message: 'Invalid credentials'}, 401);
+            }
+
+            api.users.setPassword({
+                query: {
+                    username: user.username
+                },
+                password: body.new_password
+            }, function(err, user){
+                if(err) return next(err);
+
+                res.send({
+                    user: user
+                });
+            });
+        });
+    });
+    // change personaldetails
+    app.put('/user/:username/personaldetails', checkAuth, function(req, res, next){
+        var body = req.body;
+
+        api.users.setPersonalDetails({
+            query: {
+                username: req.route.params.username
+            },
+            realname: body.realname,
+            location: body.location,
+            about: body.about
+        }, function(err, json){
+            if(err) return next(err);
+
+            res.send(json);
+        });
+    });
+    // change websites
+    app.put('/user/:username/websites', checkAuth, function(req, res, next){
+        var body = req.body;
+
+        api.users.setWebsites({
+            query: {
+                username: req.route.params.username
+            },
+            websites: body.websites
+        }, function(err, json){
+            if(err) return next(err);
+
+            res.send(json);
+        });
+    });
+    // change forum preferences
+    app.put('/user/:username/preferences', checkAuth, function(req, res, next){
+        var body = req.body;
+
+        api.users.setForumPreferences({
+            query: {
+                username: req.route.params.username
+            },
+            custom_css: body.custom_css,
+            custom_js: body.custom_js,
+            random_titles: body.random_titles === 'true',
+            hide_enemy_posts: body.hide_enemy_posts === 'true',
+            fixed_chat_size: body.fixed_chat_size === 'true',
+            thread_size: parseInt(body.thread_size, 10),
+            comment_size: parseInt(body.comment_size, 10)
+        }, function(err, json){
+            if(err) return next(err);
+
+            res.send(json);
         });
     });
 

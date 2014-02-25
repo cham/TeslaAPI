@@ -146,7 +146,8 @@ module.exports = {
             query = query || {};
 
             return this.clean({
-                username: query.username
+                username: query.username,
+                password: query.password ? bcrypt.hashSync(query.password, bcrypt.genSaltSync(12)) : undefined
             });
         }
     },
