@@ -32,30 +32,11 @@ var mongoose = require('mongoose'),
         realname: String,
         location: String,
         about: String,
-        website1: String,
-        website2: String,
-        website3: String,
-        flickr: String,
-        facebook: String,
-        aim: String,
-        gchat: String,
-        lastfm: String,
-        msn: String,
-        twitter: String,
-
-/*
-sfwtitle
-fixedchatsize
-hideenemyposts
-customcssurl
-customjsurl
-threadsperpage
-    value
-    selected
-commentsperpage
-    value
-    selected
-*/
+        websites: [{
+            name: String,
+            url: String
+        }],
+        fixed_chat_size: Boolean
     });
 
 module.exports = UserSchema;

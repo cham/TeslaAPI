@@ -236,6 +236,117 @@ module.exports = function(db){
             });
         },
 
+        setPassword: function(options, done){
+            var password = options.password;
+
+            this.getUser(options, function(err, user){
+                if(err) return done(err);
+                if(!user) return done(new Error('user not found'));
+
+                options.query.password = password;
+
+                queryBuilder.buildOptions('update:users', options, function(err, cleanOptions){
+                    if(err) return done(err);
+
+                    user.password = cleanOptions.query.password;
+
+                    user.save(function(err){
+                        if(err) return done(err);
+                        
+                        done(null, user);
+                    });
+                });
+            });
+        },
+
+        setPersonalDetails: function(options, done){
+            var realname = options.realname,
+                location = options.location,
+                about = options.about;
+
+            this.getUser(options, function(err, user){
+                if(err) return done(err);
+                if(!user) return done(new Error('user not found'));
+
+                queryBuilder.buildOptions('update:users', options, function(err, cleanOptions){
+                    if(err) return done(err);
+
+                    user.realname = realname;
+                    user.location = location;
+                    user.about = about;
+
+                    user.save(function(err){
+                        if(err) return done(err);
+
+                        done(null, user);
+                    });
+                });
+            });
+        },
+
+        setWebsites: function(options, done){
+            var websites = options.websites;
+
+            this.getUser(options, function(err, user){
+                if(err) return done(err);
+                if(!user) return done(new Error('user not found'));
+
+                queryBuilder.buildOptions('update:users', options, function(err, cleanOptions){
+                    if(err) return done(err);
+
+                    user.websites = _.reduce(websites, function(memo, val, key){
+                        memo.push({
+                            name: key,
+                            url: val
+                        });
+                        return memo;
+                    }, []);
+
+                    user.save(function(err){
+                        if(err) return done(err);
+
+                        done(null, user);
+                    });
+                });
+            });
+        },
+
+        setForumPreferences: function(options, done){
+            var custom_css = options.custom_css,
+                custom_js = options.custom_js,
+                random_titles = options.random_titles,
+                hide_enemy_posts = options.hide_enemy_posts,
+                thread_size = options.thread_size,
+                comment_size = options.comment_size,
+                fixed_chat_size = options.fixed_chat_size;
+
+            this.getUser(options, function(err, user){
+                if(err) return done(err);
+                if(!user) return done(new Error('user not found'));
+
+                queryBuilder.buildOptions('update:users', options, function(err, cleanOptions){
+                    if(err) return done(err);
+
+                    // booleans
+                    user.random_titles = random_titles;
+                    user.hide_enemy_posts = hide_enemy_posts;
+                    user.fixed_chat_size = fixed_chat_size;
+                    // numbers
+                    user.thread_size = thread_size;
+                    user.comment_size = comment_size;
+                    // strings
+                    user.custom_css = custom_css;
+                    user.custom_js = custom_js;
+
+                    user.save(function(err){
+                        if(err) return done(err);
+
+                        done(null, user);
+                    });
+                });
+            });
+        },
+
         deleteUser: function(options, done){
             db.user
                 .findOne({username: options.username})
