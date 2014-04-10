@@ -13,8 +13,11 @@
  *      /user/:username/ignores/summary
  *      /user/:username/inbox
  *      /user/:username/outbox
+ *      /user/:username/buddies/summary
+ *      /user/:username/ignores/summary
  *      /user/:username/message/:messageid
  *      /user/:username/ping
+ *      /user/:username/comments
  *
  * POST
  *      /user
@@ -219,9 +222,23 @@ module.exports = function routing(app){
     app.get('/user/:username/ping', checkAuth, function(req, res, next){
         api.users.ping({
             query: {
-                username: req.route.params.username,
+                username: req.route.params.username
             },
             ip: req.connection.remoteAddress
+        }, function(err, json){
+            if(err) return next(err);
+            res.send(json);
+        });
+    });
+
+    app.get('/user/:username/comments', checkAuth, function(req, res, next){
+        api.comments.getComments({
+            query: {
+                postedby: req.route.params.username
+            },
+            limit: 50,
+            sortBy: '-created',
+            populate: true
         }, function(err, json){
             if(err) return next(err);
             res.send(json);

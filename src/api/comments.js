@@ -47,6 +47,9 @@ module.exports = function(db){
                 if(cleanOptions.limit){
                     query.limit(cleanOptions.limit);
                 }
+                if(cleanOptions.populate){
+                    query.populate('threadid');
+                }
 
                 query.exec(function(err, comments){
                     if(err) return done(err);
@@ -55,7 +58,7 @@ module.exports = function(db){
                         return done(null,{});
                     }
 
-                    if(!cleanOptions.query._id && (_.isNumber(cleanOptions.skip) || _.isNumber(cleanOptions.limit))){
+                    if(!cleanOptions.query._id && cleanOptions.query.threadid && (_.isNumber(cleanOptions.skip) || _.isNumber(cleanOptions.limit))){
                         threadRangeApi.setRange({
                             threadid: cleanOptions.query.threadid,
                             skip: cleanOptions.skip,
