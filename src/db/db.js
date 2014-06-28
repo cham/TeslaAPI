@@ -15,7 +15,11 @@ var mongoose = require('mongoose'),
     threadModel = mongoose.model('Thread', ThreadSchema),
     messageModel = mongoose.model('Message', MessageSchema);
     
-mongoose.connect('mongodb://localhost/tesladb');
+mongoose.connect(process.env.DATABASE_URL || 'mongodb://localhost/tesladb', function(err) {
+    if (err) {
+        throw err;
+    }
+});
 
 module.exports = {
     user: userModel,
