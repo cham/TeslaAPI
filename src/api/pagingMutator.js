@@ -26,7 +26,7 @@ PagingMutator.prototype.mutate = function(queryOptions, done){
             };
         }
         if(range.end_date){
-            delete queryOptions.limit;
+            queryOptions.skip = 0;
             queryOptions.query.created = _(queryOptions.query.created || {}).extend({
                 $lte: range.end_date
             });
