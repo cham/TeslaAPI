@@ -133,7 +133,7 @@ module.exports = {
 
             return this.clean({
                 username: query.username,
-                urlname: encodeURIComponent(query.username),
+                urlname: encodeURIComponent(query.username.toLowerCase()),
                 password: bcrypt.hashSync(query.password, bcrypt.genSaltSync(12)),
                 email: query.email,
                 ip: query.ip,
@@ -196,7 +196,8 @@ module.exports = {
     sorting: {
         'read:threads': '-last_comment_time',
         'read:comments': 'created',
-        'read:messages': '-created'
+        'read:messages': '-created',
+        'read:users': 'urlname'
     },
 
     buildOptions: function(operationName, options, next){
