@@ -316,13 +316,20 @@ module.exports = function routing(app){
 
     // update thread
     app.put('/thread/:urlname', checkAuth, function(req, res, next){
-        var body = req.body;
+        var body = req.body,
+            updateData = {};
 
-        api.threads.updateThread(_.extend({}, req.query, {
+        if(body.closed){
+            updateData.closed = body.closed === 'true';
+        }
+        if(body.nsfw){
+            updateData.nsfw = body.nsfw === 'true';
+        }
+
+        api.threads.updateThread(_.extend(updateData, req.query, {
             query: {
                 urlname: encodeURIComponent(req.route.params.urlname)
-            },
-            closed: body.closed === 'true'
+            }
         }), function(err, json){
             if(err){
                 return next(err);

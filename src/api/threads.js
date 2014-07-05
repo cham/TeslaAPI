@@ -270,7 +270,9 @@ module.exports = function(db){
 
         updateThread: function(options, done){
             var thread,
-                closed = options.closed;
+                optionKeys = Object.keys(options),
+                closed = options.closed,
+                nsfw = options.nsfw;
 
             this.getThread({
                 query: {
@@ -285,7 +287,12 @@ module.exports = function(db){
                     return done(new Error('thread not found'));
                 }
                 thread = json.threads[0];
-                thread.closed = closed;
+                if(optionKeys.indexOf('closed') > -1){
+                    thread.closed = closed;
+                }
+                if(optionKeys.indexOf('nsfw') > -1){
+                    thread.nsfw = nsfw;
+                }
 
                 thread.save(function(err){
                     if(err) return done(err);
