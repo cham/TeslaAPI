@@ -68,7 +68,7 @@ module.exports = function routing(app){
 
     // users
     app.get('/users', checkAuth, function(req, res, next){
-        api.users.getUsers(req.route.params || {}, function(err, data){
+        api.users.getUsers(req.query || {}, function(err, data){
             if(err){
                 return next(err);
             }
@@ -77,7 +77,7 @@ module.exports = function routing(app){
     });
 
     app.get('/users/count', checkAuth, function(req, res, next){
-        api.users.getUsers(_(req.route.params || {}).extend({
+        api.users.getUsers(_.extend(req.query, {
             countonly: true
         }), function(err, data){
             if(err){
@@ -88,8 +88,11 @@ module.exports = function routing(app){
     });
 
     app.get('/users/summary', checkAuth, function(req, res, next){
-        api.users.getUsers(_(req.route.params || {}).extend({
-            summary: true
+        api.users.getUsers(_.extend(req.query, {
+            summary: true,
+            query: {
+                startswith: req.query.startswith
+            }
         }), function(err, data){
             if(err){
                 return next(err);

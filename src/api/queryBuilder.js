@@ -118,6 +118,10 @@ module.exports = {
         'read:users': function(query){
             query = query || {};
 
+            if(query.startswith){
+                query.username = new RegExp('^' + query.startswith, 'i');
+            }
+
             return this.clean({
                 username: query.username,
                 password: query.password

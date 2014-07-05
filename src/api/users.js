@@ -2,6 +2,7 @@
  * Tesla api methods for accessing and manipulating user data
  */
 var _ = require('underscore'),
+    async = require('async'),
     messages = require('./messages'),
     queryBuilder = require('./queryBuilder');
 
@@ -44,14 +45,49 @@ module.exports = function(db){
                     return;
                 }
 
-                query.exec(function(err, users){
-                    if(err){
-                        return done(err);
-                    }
+                // count now takes longer than query for users
+                async.parallel({
+                    totaldocs: function(asyncDone){
+                        _(query).clone().count(function (err, count) {
+                            if (err) return asyncDone(null, 0);
 
-                    done(null,{
-                        users: cleanOptions.summary ? _(users).map(summaryMapping) : users
-                    });
+                            asyncDone(null, count);
+                        });
+                    },
+                    users: function(asyncDone){
+                        if(cleanOptions.sortBy){
+                            query.sort(cleanOptions.sortBy);
+                        }
+                        if(cleanOptions.skip){
+                            query.skip(cleanOptions.skip);
+                        }
+                        if(cleanOptions.limit){
+                            query.limit(cleanOptions.limit);
+                        }
+
+                        query.exec(function(err, users){
+                            if(err) return asyncDone(null, []);
+
+                            if(!users || !users.length){
+                                return asyncDone(null, []);
+                            }
+                            if(cleanOptions.summary){
+                                users = _(users).map(summaryMapping);
+                            }
+                            asyncDone(null, users);
+                        });
+                    }
+                }, function(err, results){
+                    if(err) return done(err);
+
+                    done(null,
+                        {
+                            users: cleanOptions.summary ? results.users.map(summaryMapping) : results.users,
+                            skip: cleanOptions.skip,
+                            limit: cleanOptions.limit,
+                            totaldocs: results.totaldocs
+                        }
+                    );
                 });
             });
         },
