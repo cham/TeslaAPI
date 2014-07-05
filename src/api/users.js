@@ -15,10 +15,10 @@ function summaryMapping(user){
         lastpointusage: user.lastpointusage,
         view_html: user.view_html,
         last_login: user.last_login,
-        hide_enemy_posts: user.hide_enemy_posts,
         timezone: user.timezone,
         random_titles: user.random_titles,
-        banned: user.banned
+        banned: user.banned,
+        created: user.created
     };
 }
 
