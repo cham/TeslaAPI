@@ -259,6 +259,26 @@ module.exports = function(db){
             });
         },
 
+        setEmail: function(options, done){
+            var email = options.email;
+
+            this.getUser(options, function(err, user){
+                if(err) return done(err);
+                if(!user) return done(new Error('user not found'));
+
+                options.query.email = email;
+                queryBuilder.buildOptions('update:users', options, function(err, cleanOptions){
+                    if(err) return done(err);
+
+                    user.email = cleanOptions.query.email;
+                    user.save(function(err){
+                        if(err) return done(err);
+                        done(null, user);
+                    });
+                });
+            });
+        },
+
         setPersonalDetails: function(options, done){
             var realname = options.realname,
                 location = options.location,

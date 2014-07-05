@@ -29,6 +29,7 @@
  *      /user/:username/ignore
  *      /user/:username/favourite
  *      /user/:username/changepassword
+ *      /user/:username/changeemail
  *      /user/:username/personaldetails
  *      /user/:username/messages/read
  *      /user/:username/messages/unread
@@ -533,6 +534,21 @@ module.exports = function routing(app){
                     user: user
                 });
             });
+        });
+    });
+    // change email
+    app.put('/user/:username/changeemail', checkAuth, function(req, res, next){
+        var body = req.body;
+
+        api.users.setEmail({
+            query: {
+                username: req.route.params.username
+            },
+            email: body.email
+        }, function(err, json){
+            if(err) return next(err);
+
+            res.send(json);
         });
     });
     // change personaldetails
