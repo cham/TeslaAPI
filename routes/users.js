@@ -30,6 +30,7 @@
  *      /user/:username/favourite
  *      /user/:username/changepassword
  *      /user/:username/changeemail
+ *      /user/:username/togglehtml
  *      /user/:username/personaldetails
  *      /user/:username/messages/read
  *      /user/:username/messages/unread
@@ -545,6 +546,20 @@ module.exports = function routing(app){
                 username: req.route.params.username
             },
             email: body.email
+        }, function(err, json){
+            if(err) return next(err);
+
+            res.send(json);
+        });
+    });
+    // toggle html
+    app.put('/user/:username/togglehtml', checkAuth, function(req, res, next){
+        var body = req.body;
+
+        api.users.toggleHTML({
+            query: {
+                username: req.route.params.username
+            }
         }, function(err, json){
             if(err) return next(err);
 

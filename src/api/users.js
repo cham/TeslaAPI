@@ -279,6 +279,19 @@ module.exports = function(db){
             });
         },
 
+        toggleHTML: function(options, done){
+            this.getUser(options, function(err, user){
+                if(err) return done(err);
+                if(!user) return done(new Error('user not found'));
+
+                user.view_html = !user.view_html;
+                user.save(function(err){
+                    if(err) return done(err);
+                    done(null, user);
+                });
+            });
+        },
+
         setPersonalDetails: function(options, done){
             var realname = options.realname,
                 location = options.location,
