@@ -24,6 +24,9 @@
  *      /thread
  *      /comment
  *
+ * PUT
+ *      /thread/:threadUrlName
+ *
  */
 var _ = require('underscore'),
     api = require('../src/api/api');
@@ -308,6 +311,23 @@ module.exports = function routing(app){
             res.send({
                 comment: thread
             });
+        });
+    });
+
+    // update thread
+    app.put('/thread/:urlname', checkAuth, function(req, res, next){
+        var body = req.body;
+
+        api.threads.updateThread(_.extend({}, req.query, {
+            query: {
+                urlname: encodeURIComponent(req.route.params.urlname)
+            },
+            closed: body.closed === 'true'
+        }), function(err, json){
+            if(err){
+                return next(err);
+            }
+            res.send(json);
         });
     });
 

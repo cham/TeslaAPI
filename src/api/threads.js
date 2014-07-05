@@ -268,6 +268,33 @@ module.exports = function(db){
             });
         },
 
+        updateThread: function(options, done){
+            var thread,
+                closed = options.closed;
+
+            this.getThread({
+                query: {
+                    urlname: options.query.urlname
+                }
+            }, function(err, json){
+                if(err){
+                    return done(err);
+                }
+
+                if(!json.threads || !json.threads.length){
+                    return done(new Error('thread not found'));
+                }
+                thread = json.threads[0];
+                thread.closed = closed;
+
+                thread.save(function(err){
+                    if(err) return done(err);
+
+                    return done(null, thread);
+                });
+            });
+        },
+
         postCommentInThreadByUser: function(options, done){
             options = options || {};
             if(!options.thread){
