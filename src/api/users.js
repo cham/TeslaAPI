@@ -152,8 +152,8 @@ module.exports = function(db){
             });
         },
 
-        getUsersInUserList: function(options, done){
-            var that = this, // following vars to getUsers only - do not apply to getUser
+        getBuddies: function(options, done){
+            var that = this,
                 summary = !!options.summary,
                 populate = !!options.populate,
                 excludelist = !!options.excludelist,
@@ -193,6 +193,26 @@ module.exports = function(db){
                     summary: summary,
                     populate: populate
                 }, done);
+            });
+        },
+
+        getBuddyOf: function(options, done){
+            queryBuilder.buildOptions('read:users', options, function(err, cleanOptions){
+                if(err) return done(err);
+
+                var queryOptions = {},
+                    query;
+
+                queryOptions[cleanOptions.listkey] = cleanOptions.query.username;
+                query = db.user.find(queryOptions);
+
+                if(cleanOptions.countonly){
+                    return query.count(function(err, count){
+                        done(err, {totaldocs:count});
+                    });
+                }
+
+                query.exec(done);
             });
         },
 

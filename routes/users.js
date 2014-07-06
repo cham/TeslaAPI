@@ -11,9 +11,10 @@
  *      /user/:username/buddies/summary
  *      /user/:username/ignores
  *      /user/:username/ignores/summary
+ *      /user/:username/buddyof
+ *      /user/:username/ignoreof
  *      /user/:username/inbox
  *      /user/:username/outbox
- *      /user/:username/buddies/summary
  *      /user/:username/ignores/summary
  *      /user/:username/message/:messageid
  *      /user/:username/ping
@@ -129,7 +130,7 @@ module.exports = function routing(app){
     });
     
     app.get('/user/:username/buddies', checkAuth, function(req, res, next){
-        api.users.getUsersInUserList(_(req.query || {}).extend({
+        api.users.getBuddies(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
@@ -141,7 +142,31 @@ module.exports = function routing(app){
     });
     
     app.get('/user/:username/ignores', checkAuth, function(req, res, next){
-        api.users.getUsersInUserList(_(req.query || {}).extend({
+        api.users.getBuddies(_(req.query || {}).extend({
+            query: {
+                username: req.route.params.username
+            },
+            listkey: 'ignores'
+        }), function(err, json){
+            if(err) return next(err);
+            res.send(json);
+        });
+    });
+
+    app.get('/user/:username/buddyof', checkAuth, function(req, res, next){
+        api.users.getBuddyOf(_.extend({}, req.query, {
+            query: {
+                username: req.route.params.username
+            },
+            listkey: 'buddies'
+        }), function(err, json){
+            if(err) return next(err);
+            res.send(json);
+        });
+    });
+
+    app.get('/user/:username/ignoreof', checkAuth, function(req, res, next){
+        api.users.getBuddyOf(_.extend({}, req.query, {
             query: {
                 username: req.route.params.username
             },
@@ -153,7 +178,7 @@ module.exports = function routing(app){
     });
     
     app.get('/user/:username/buddies/summary', checkAuth, function(req, res, next){
-        api.users.getUsersInUserList(_(req.query || {}).extend({
+        api.users.getBuddies(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
@@ -166,7 +191,7 @@ module.exports = function routing(app){
     });
     
     app.get('/user/:username/ignores/summary', checkAuth, function(req, res, next){
-        api.users.getUsersInUserList(_(req.query || {}).extend({
+        api.users.getBuddies(_(req.query || {}).extend({
             query: {
                 username: req.route.params.username
             },
