@@ -266,7 +266,7 @@ module.exports = function routing(app){
             query: {
                 postedby: req.route.params.username
             },
-            limit: 50,
+            size: 10,
             sortBy: '-created',
             populate: true
         }, function(err, json){
