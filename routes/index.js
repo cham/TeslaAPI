@@ -10,7 +10,10 @@ var express = require('express'),
     users = require('./users'),
     points = require('./points'),
     stresstest = false,
-    stressTester = stresstest ? require('../src/stressTester') : {routing:function(){}};
+    stressTester = stresstest ? require('../src/stressTester') : {routing:function(){}},
+    whitelistedHosts = [
+        'localhost'
+    ];
 
 module.exports = function routing(){
 
@@ -19,6 +22,20 @@ module.exports = function routing(){
     if(stresstest){
         stressTester.routing(app);
     }
+
+    app.get('*', function(req, res, next){
+        var host = req.headers.host;
+        var hostOk = whitelistedHosts.reduce(function(memo, whitelisted){
+            return memo || host.indexOf(whitelisted) === 0;
+        }, false);
+
+        if(hostOk){
+            next();
+        }else{
+            res.status(403);
+            res.end();
+        }
+    });
 
     comments(app);
     threads(app);
