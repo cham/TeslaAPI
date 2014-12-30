@@ -3,7 +3,7 @@ var mongoose = require('mongoose'),
         username: {type: String, index: {unique: true, dropDups: true}},
         urlname: {type: String, index: {unique: true, dropDups: true}},
         password: String,
-        email: {type: String, index: {unique: true, dropDups: true}},
+        email: {type: String},
         activated: {type: Boolean, default: true},
         banned: Boolean,
         ban_reason: String,
@@ -36,7 +36,8 @@ var mongoose = require('mongoose'),
             name: String,
             url: String
         }],
-        fixed_chat_size: Boolean
+        fixed_chat_size: Boolean,
+        membernumber: Number
     });
 
 module.exports = UserSchema;
