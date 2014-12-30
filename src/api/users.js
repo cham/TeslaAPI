@@ -100,7 +100,7 @@ module.exports = function(db){
                     .findOne(cleanOptions.query)
                     .exec(function(err, user){
                         if(err) return done(err);
-                        if(!user || !user.activated || user.banned) return done(null,{});
+                        if(!user || !user.activated) return done(null,{});
 
                         var userData = cleanOptions.summary ? summaryMapping(user) : user;
 
