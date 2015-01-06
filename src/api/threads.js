@@ -148,11 +148,22 @@ module.exports = function(db){
 
                             var thread = completeMapping(threads[0]);
 
-                            return done(null, {
-                                threads: [_(thread).extend({comments: comments})],
-                                skip: cleanOptions.skip,
-                                limit: cleanOptions.limit,
-                                totaldocs: thread.numcomments
+                            usersApi.getUser({
+                                query: {
+                                    username: thread.postedby
+                                }
+                            }, function(err, user){
+                                if(err) return done(err);
+
+                                return done(null, {
+                                    threads: [_(thread).extend({
+                                        comments: comments,
+                                        postedby_ignores: user.ignores
+                                    })],
+                                    skip: cleanOptions.skip,
+                                    limit: cleanOptions.limit,
+                                    totaldocs: thread.numcomments
+                                });
                             });
                         });
                     });
