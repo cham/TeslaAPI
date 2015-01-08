@@ -4,6 +4,7 @@
  */
 
 var cluster   = require('cluster');
+var workersPerCPU = 4;
 
 cluster.setupMaster({
     exec : 'worker.js'
@@ -14,7 +15,9 @@ var cpuCount = require('os').cpus().length;
 
 // Create a worker for each CPU
 for(var i = 0; i < cpuCount; i += 1){
-    cluster.fork();
+    for(var j = 0; j < workersPerCPU; j+= 1){
+        cluster.fork();
+    }
 }
 
 // Restart dead workers
