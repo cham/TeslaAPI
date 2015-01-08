@@ -380,15 +380,27 @@ module.exports = function(db){
                     }
                     thread = json.threads[0];
 
-                    return that.postCommentInThreadByUser({
+                    usersApi.getUser({
                         query: {
-                            threadid: thread._id,
-                            postedby: options.query.postedby,
-                            content: options.query.content
-                        },
-                        user: user,
-                        thread: thread
-                    }, done);
+                            username: thread.postedby
+                        }
+                    }, function(err, threadAuthor){
+                        if(err) return done(err);
+
+                        if(threadAuthor.ignores.indexOf(user.username) !== -1){
+                            return done(new Error('user is ignored by the thread author'));
+                        }
+
+                        return that.postCommentInThreadByUser({
+                            query: {
+                                threadid: thread._id,
+                                postedby: options.query.postedby,
+                                content: options.query.content
+                            },
+                            user: user,
+                            thread: thread
+                        }, done);
+                    });
                 });
             });
         }
