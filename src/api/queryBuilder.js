@@ -124,7 +124,8 @@ module.exports = {
 
             return this.clean({
                 username: query.username,
-                password: query.password
+                password: query.password,
+                email: query.email
             });
         },
         'write:users': function(query){

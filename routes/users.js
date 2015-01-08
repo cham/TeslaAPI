@@ -92,7 +92,8 @@ module.exports = function routing(app){
         api.users.getUsers(_.extend(req.query, {
             summary: true,
             query: {
-                startswith: req.query.startswith
+                startswith: req.query.startswith,
+                email: req.query.email
             }
         }), function(err, data){
             if(err){
