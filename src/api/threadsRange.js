@@ -6,6 +6,7 @@ var _ = require('underscore');
 module.exports = function(db){
     return {
         findRange: function(query, done){
+// console.log('findRange', query);
             if(!query.threadid) return done(new Error('threadid is required'));
             if(!_.isNumber(query.skip)) return done(new Error('skip is required'));
 
@@ -17,6 +18,7 @@ module.exports = function(db){
             });
         },
         setRange: function(options, done){
+// console.log('setRange', options);
             this.findRange({
                 threadid: options.threadid,
                 skip: options.skip,
