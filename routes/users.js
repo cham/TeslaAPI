@@ -570,6 +570,34 @@ module.exports = function routing(app){
             });
         });
     });
+    // reset password
+    app.put('/user/:username/resetpassword', checkAuth, function(req, res, next){
+        var username = req.route.params.username,
+            body = req.body;
+
+        api.users.getUser({
+            query: {username: username}
+        }, function(err, user){
+            if(err) return next(err);
+
+            if(!body.password){
+                return res.send({message: 'Password is required'}, 401);
+            }
+
+            api.users.setPassword({
+                query: {
+                    username: user.username
+                },
+                password: body.password
+            }, function(err, user){
+                if(err) return next(err);
+
+                res.send({
+                    user: user
+                });
+            });
+        });
+    });
     // change email
     app.put('/user/:username/changeemail', checkAuth, function(req, res, next){
         var body = req.body;
