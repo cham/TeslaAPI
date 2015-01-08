@@ -13,6 +13,7 @@ function PagingMutator(){
 }
 
 PagingMutator.prototype.mutate = function(queryOptions, done){
+    return done(queryOptions);
     threadsRangeApi.findRange({
         threadid: queryOptions.query.threadid,
         skip: queryOptions.skip
