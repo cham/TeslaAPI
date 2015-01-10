@@ -25,6 +25,8 @@ module.exports = function(db){
 
     return {
         getComments: function(options, done){
+            var mongooseObject = options.mongooseObject;
+
             queryBuilder.buildOptions('read:comments', options, function(err, cleanOptions){
                 if(err) return done(err);
 
@@ -56,17 +58,23 @@ module.exports = function(db){
                 }
 
                 query.exec(function(err, comments){
+                    var mappedComments;
+
                     if(err) return done(err);
 
                     if(!comments || !comments[0]){
                         return done(null,{});
                     }
 
-                    var mappedComments = comments.map(function(comment){
-                        comment = comment.toJSON();
-                        comment.banned = bannedUsersCache.getUsernames().indexOf(comment.postedby) > -1;
-                        return comment;
-                    });
+                    if(mongooseObject){
+                        mappedComments = comments;
+                    }else{
+                        mappedComments = comments.map(function(comment){
+                            comment = comment.toJSON();
+                            comment.banned = bannedUsersCache.getUsernames().indexOf(comment.postedby) > -1;
+                            return comment;
+                        });
+                    }
 
                     if(!cleanOptions.query._id && cleanOptions.query.threadid && (_.isNumber(cleanOptions.skip) || _.isNumber(cleanOptions.limit))){
                         threadRangeApi.setRange({
@@ -124,7 +132,9 @@ module.exports = function(db){
             var update = options.update || {},
                 content = update.content;
 
-            this.getComments(options, function(err, comments){
+            this.getComments(_.extend(options, {
+                mongooseObject: true
+            }), function(err, comments){
                 if(err) return done(err);
 
                 if(!comments || !comments.length) return done(new Error('Comment not found'));
@@ -154,7 +164,9 @@ module.exports = function(db){
             var numpoints = options.numpoints,
                 comment;
 
-            this.getComments(options, function(err, comments){
+            this.getComments(_.extend(options, {
+                mongooseObject: true
+            }), function(err, comments){
                 if(err) return done(err);
                 if(!comments.length) return done(new Error('comment not found'));
 
