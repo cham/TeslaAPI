@@ -4,6 +4,8 @@
 var _ = require('underscore'),
     queryBuilder = require('./queryBuilder'),
     threadsRange = require('./threadsRange'),
+    users = require('./users'),
+    bannedusers = require('./bannedusers'),
     Levenshtein = require('levenshtein');
 
 function summaryMapping(comment){
@@ -11,13 +13,15 @@ function summaryMapping(comment){
         postedby: comment.postedby,
         created: comment.created,
         points: comment.points,
-        content: comment.content
+        content: comment.content,
+        banned: comment.banned
     };
 }
 
 module.exports = function(db){
 
     var threadRangeApi = threadsRange(db);
+    var bannedUsersCache = bannedusers(db);
 
     return {
         getComments: function(options, done){
@@ -58,6 +62,12 @@ module.exports = function(db){
                         return done(null,{});
                     }
 
+                    var mappedComments = comments.map(function(comment){
+                        comment = comment.toJSON();
+                        comment.banned = bannedUsersCache.getUsernames().indexOf(comment.postedby) > -1;
+                        return comment;
+                    });
+
                     if(!cleanOptions.query._id && cleanOptions.query.threadid && (_.isNumber(cleanOptions.skip) || _.isNumber(cleanOptions.limit))){
                         threadRangeApi.setRange({
                             threadid: cleanOptions.query.threadid,
@@ -70,10 +80,10 @@ module.exports = function(db){
                         }, function(err){
                             if(err) return done(err);
 
-                            done(null, cleanOptions.summary ? _(comments).map(summaryMapping) : comments);
+                            done(null, cleanOptions.summary ? _(mappedComments).map(summaryMapping) : mappedComments);
                         });
                     }else{
-                        done(null, cleanOptions.summary ? _(comments).map(summaryMapping) : comments);
+                        done(null, cleanOptions.summary ? _(mappedComments).map(summaryMapping) : mappedComments);
                     }
                 });
             });
