@@ -417,16 +417,28 @@ module.exports = function routing(app){
     });
     // buddy
     app.put('/user/:username/buddy', checkAuth, function(req, res, next){
+        var username = req.route.params.username;
         api.users.updateUserList({
             query: {
-                username: req.route.params.username
+                username: username
             },
             listkey: 'buddies',
             listval: req.body.listval
         }, function(err, json){
             if(err) return next(err);
 
-            res.send(json);
+            api.users.updateUserList({
+                query: {
+                    username: username
+                },
+                listkey: 'ignores',
+                listval: req.body.listval,
+                removefromlist: true
+            }, function(err, json){
+                if(err) return next(err);
+
+                res.send(json);
+            });
         });
     });
     app.put('/user/:username/unbuddy', checkAuth, function(req, res, next){
@@ -445,16 +457,28 @@ module.exports = function routing(app){
     });
     // ignore
     app.put('/user/:username/ignore', checkAuth, function(req, res, next){
+        var username = req.route.params.username;
         api.users.updateUserList({
             query: {
-                username: req.route.params.username
+                username: username
             },
             listkey: 'ignores',
             listval: req.body.listval
         }, function(err, json){
             if(err) return next(err);
 
-            res.send(json);
+            api.users.updateUserList({
+                query: {
+                    username: username
+                },
+                listkey: 'buddies',
+                listval: req.body.listval,
+                removefromlist: true
+            }, function(err, json){
+                if(err) return next(err);
+
+                res.send(json);
+            });
         });
     });
     app.put('/user/:username/unignore', checkAuth, function(req, res, next){
