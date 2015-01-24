@@ -349,7 +349,13 @@ module.exports = function(db){
                     thread.save(function(err){
                         if(err) return done(err);
 
-                        return done(null, options.returnthread ? thread : comment);
+                        if(options.returnthread){
+                            return done(null, thread);
+                        }else{
+                            comment = comment.toJSON();
+                            comment.positionInThread = thread.numcomments;
+                            return done(null, comment);
+                        }
                     });
                 });
             });

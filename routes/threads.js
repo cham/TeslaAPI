@@ -308,6 +308,7 @@ module.exports = function routing(app){
             if(err){
                 return next(err);
             }
+
             res.send({
                 comment: thread
             });
