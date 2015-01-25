@@ -436,6 +436,52 @@ module.exports = function(db){
             });
         },
 
+        setBanned: function(options, done){
+            var banned = options.banned;
+
+            this.getUser(options, function(err, user){
+                if(err) return done(err);
+                if(!user) return done(new Error('user not found'));
+
+                queryBuilder.buildOptions('update:users', options, function(err, cleanOptions){
+                    if(err) return done(err);
+
+                    user.banned = banned;
+
+                    user.save(function(err){
+                        if(err) return done(err);
+
+                        done(null, user);
+                    });
+                });
+            });
+        },
+
+        setPoints: function(options, done){
+            var points = parseInt(options.points);
+
+            this.getUser(options, function(err, user){
+                if(err) return done(err);
+                if(!user) return done(new Error('user not found'));
+
+                queryBuilder.buildOptions('update:users', options, function(err, cleanOptions){
+                    if(err) return done(err);
+
+                    if(isNaN(points)){
+                        return done(new Error('points is not a number'));
+                    }
+
+                    user.points = points;
+
+                    user.save(function(err){
+                        if(err) return done(err);
+
+                        done(null, user);
+                    });
+                });
+            });
+        },
+
         deleteUser: function(options, done){
             db.user
                 .findOne({username: options.username})

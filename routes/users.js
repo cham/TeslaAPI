@@ -37,6 +37,8 @@
  *      /user/:username/messages/unread
  *      /user/:username/messages/recipient/delete
  *      /user/:username/messages/recipient/undelete
+ *      /user/:username/ban
+ *      /user/:username/unban
  * 
  * DELETE
  *      /users
@@ -69,7 +71,12 @@ module.exports = function routing(app){
 
     // users
     app.get('/users', checkAuth, function(req, res, next){
-        api.users.getUsers(req.query || {}, function(err, data){
+        api.users.getUsers(_.extend(req.query || {}, {
+            query: {
+                startswith: req.query.startswith,
+                email: req.query.email
+            }
+        }), function(err, data){
             if(err){
                 return next(err);
             }
@@ -698,6 +705,44 @@ module.exports = function routing(app){
             fixed_chat_size: body.fixed_chat_size === 'true',
             thread_size: parseInt(body.thread_size, 10),
             comment_size: parseInt(body.comment_size, 10)
+        }, function(err, json){
+            if(err) return next(err);
+
+            res.send(json);
+        });
+    });
+    // ban / unban
+    app.put('/user/:username/ban', checkAuth, function(req, res, next){
+        api.users.setBanned({
+            query: {
+                username: req.route.params.username
+            },
+            banned: true
+        }, function(err, json){
+            if(err) return next(err);
+
+            res.send(json);
+        });
+    });
+    app.put('/user/:username/unban', checkAuth, function(req, res, next){
+        api.users.setBanned({
+            query: {
+                username: req.route.params.username
+            },
+            banned: false
+        }, function(err, json){
+            if(err) return next(err);
+
+            res.send(json);
+        });
+    });
+    // set points
+    app.put('/user/:username/points', checkAuth, function(req, res, next){
+        api.users.setPoints({
+            query: {
+                username: req.route.params.username
+            },
+            points: req.body.points
         }, function(err, json){
             if(err) return next(err);
 
