@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 
 var QuestionSchema = new mongoose.Schema({
     detail: String,
-    enabled: Boolean
+    enabled: {type: Boolean, default: true}
 });
 
 module.exports = QuestionSchema;

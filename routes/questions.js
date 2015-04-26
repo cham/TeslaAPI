@@ -19,11 +19,11 @@ module.exports = function routing(app){
             query: {
                 _id: req.query.id
             }
-        }, function(err, data){
+        }, function(err, questions){
             if(err){
                 return next(err);
             }
-            res.send(data);
+            res.send({questions: questions});
         });
     });
     app.get('/questions/:id', checkAuth, function(req, res, next){
@@ -31,11 +31,11 @@ module.exports = function routing(app){
             query: {
                 _id: req.route.params.id
             }
-        }, function(err, data){
+        }, function(err, questions){
             if(err){
                 return next(err);
             }
-            res.send(data[0]);
+            res.send({question: questions[0]});
         });
     });
 
@@ -44,7 +44,7 @@ module.exports = function routing(app){
             if(err){
                 return next(err);
             }
-            res.send(question);
+            res.send({question: question});
         });
     });
 
@@ -54,26 +54,29 @@ module.exports = function routing(app){
             query: {
                 detail: req.body.detail
             }
-        }, function(err, data){
+        }, function(err, question){
             if(err){
                 return next(err);
             }
-            res.send(data);
+            res.send({question: question});
         });
     });
 
     // edit message
     app.put('/questions/:id', checkAuth, function(req, res, next){
+        var body = req.body;
+
         api.questions.editQuestion({
             query: {
                 _id: req.route.params.id
             },
-            detail: req.body.detail
-        }, function(err, data){
+            detail: body.detail,
+            enabled: body.enabled === 'true'
+        }, function(err, question){
             if(err){
                 return next(err);
             }
-            res.send(data);
+            res.send({question: question});
         });
     });
 

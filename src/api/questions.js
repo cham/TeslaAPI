@@ -10,7 +10,7 @@ module.exports = function(db){
                     return done(err);
                 }
 
-                var query = db.questions.find(cleanOptions.query);
+                var query = db.questions.find(cleanOptions.query).sort('_id');
 
                 if(cleanOptions.skip){
                     query.skip(cleanOptions.skip);
@@ -32,18 +32,20 @@ module.exports = function(db){
         randomQuestion: function(done){
             var questionsApi = this;
 
-            db.questions.count(function(err, count){
+            db.questions.find({enabled: true}).count(function(err, count){
                 if(err){
                     return done(err);
                 }
-
                 if(typeof count !== 'number' || count === 0){
                     return done(null, {});
                 }
 
                 questionsApi.getQuestions({
                     page: Math.ceil(Math.random() * count),
-                    size: 1
+                    size: 1,
+                    query: {
+                        enabled: true
+                    }
                 }, function(err, questions){
                     if(err){
                         return done(err);
@@ -74,6 +76,7 @@ module.exports = function(db){
 
         editQuestion: function(options, done){
             var detail = options.detail;
+            var enabled = options.enabled;
 
             this.getQuestions(options, function(err, questions){
                 if(err){
@@ -85,7 +88,14 @@ module.exports = function(db){
                 }
 
                 var question = questions[0];
-                question.detail = detail;
+
+                if(detail){
+                    question.detail = detail;
+                }
+                if(enabled === true || enabled === false){
+                    question.enabled = enabled;
+                }
+
                 question.save(function(err){
                     if(err){
                         return done(err);

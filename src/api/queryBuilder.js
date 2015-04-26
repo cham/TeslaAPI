@@ -161,7 +161,8 @@ module.exports = {
             query = query || {};
 
             return this.clean({
-                _id: query._id
+                _id: query._id,
+                enabled: query.enabled
             });
         },
         'write:questions': function(query){
