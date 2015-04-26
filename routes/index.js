@@ -9,6 +9,7 @@ var express = require('express'),
     threads = require('./threads'),
     users = require('./users'),
     points = require('./points'),
+    questions = require('./questions'),
     stresstest = false,
     stressTester = stresstest ? require('../src/stressTester') : {routing:function(){}},
     whitelistedHosts = [
@@ -41,6 +42,7 @@ module.exports = function routing(){
     threads(app);
     users(app);
     points(app);
+    questions(app);
 
     app.get('*', function(req, res, next){
         res.statusCode = 404;

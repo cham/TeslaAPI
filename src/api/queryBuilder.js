@@ -156,6 +156,20 @@ module.exports = {
                 password: query.password ? bcrypt.hashSync(query.password, bcrypt.genSaltSync(12)) : undefined,
                 email: query.email
             });
+        },
+        'read:questions': function(query){
+            query = query || {};
+
+            return this.clean({
+                _id: query._id
+            });
+        },
+        'write:questions': function(query){
+            query = query || {};
+
+            return this.clean({
+                detail: query.detail
+            });
         }
     },
 
@@ -190,6 +204,11 @@ module.exports = {
         },
         'write:messages': function(query){
             var required = ['sender', 'recipient', 'subject', 'content'];
+
+            return this.getMissing(required, query);
+        },
+        'write:questions': function(query){
+            var required = ['detail'];
 
             return this.getMissing(required, query);
         }

@@ -2,12 +2,13 @@
  * Tesla API
  * provides a single interface to separate entities of the API
  */
-var db = require('../db/db'),
-    users = require('./users'),
-    comments = require('./comments'),
-    threads = require('./threads'),
-    threadsRange = require('./threadsRange'),
-    messages = require('./messages');
+var db = require('../db/db');
+var users = require('./users');
+var comments = require('./comments');
+var threads = require('./threads');
+var threadsRange = require('./threadsRange');
+var messages = require('./messages');
+var questions = require('./questions');
 
 module.exports = {
 
@@ -15,6 +16,7 @@ module.exports = {
     comments: comments(db),
     threadsRange: threadsRange(db),
     messages: messages(db),
-    threads: threads(db)
+    threads: threads(db),
+    questions: questions(db)
 
 };
