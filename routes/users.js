@@ -17,7 +17,6 @@
  *      /user/:username/outbox
  *      /user/:username/ignores/summary
  *      /user/:username/message/:messageid
- *      /user/:username/ping
  *      /user/:username/comments
  *
  * POST
@@ -39,6 +38,7 @@
  *      /user/:username/messages/recipient/undelete
  *      /user/:username/ban
  *      /user/:username/unban
+ *      /user/:username/ping
  * 
  * DELETE
  *      /users
@@ -257,18 +257,6 @@ module.exports = function routing(app){
         });
     });
 
-    app.get('/user/:username/ping', checkAuth, function(req, res, next){
-        api.users.ping({
-            query: {
-                username: req.route.params.username
-            },
-            ip: req.connection.remoteAddress
-        }, function(err, json){
-            if(err) return next(err);
-            res.send(json);
-        });
-    });
-
     app.get('/user/:username/comments', checkAuth, function(req, res, next){
         api.comments.getComments({
             query: {
@@ -365,7 +353,20 @@ module.exports = function routing(app){
         );
     });
 
-     // NB - should these be PATCH instead of PUT?
+
+    // PUT
+    // ping
+    app.put('/user/:username/ping', checkAuth, function(req, res, next){
+        api.users.ping({
+            query: {
+                username: req.route.params.username
+            },
+            ip: req.body.ip
+        }, function(err, json){
+            if(err) return next(err);
+            res.send(json);
+        });
+    });
     // favourite
     app.put('/user/:username/favourite', checkAuth, function(req, res, next){
         api.users.updateUserList({
