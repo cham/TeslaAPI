@@ -40,11 +40,11 @@ module.exports = function routing(app){
     });
 
     app.get('/randomquestion', checkAuth, function(req, res, next){
-        api.questions.randomQuestion(function(err, question){
+        api.questions.randomQuestion(function(err, questions){
             if(err){
                 return next(err);
             }
-            res.send({question: question});
+            res.send({question: questions[0]});
         });
     });
 

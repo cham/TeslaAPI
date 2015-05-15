@@ -9,6 +9,7 @@ var threads = require('./threads');
 var threadsRange = require('./threadsRange');
 var messages = require('./messages');
 var questions = require('./questions');
+var pendingUsers = require('./pendingUsers');
 
 module.exports = {
 
@@ -17,6 +18,7 @@ module.exports = {
     threadsRange: threadsRange(db),
     messages: messages(db),
     threads: threads(db),
-    questions: questions(db)
+    questions: questions(db),
+    pendingUsers: pendingUsers(db)
 
 };

@@ -4,17 +4,19 @@
  */
 'use strict';
 
-var express = require('express'),
-    comments = require('./comments'),
-    threads = require('./threads'),
-    users = require('./users'),
-    points = require('./points'),
-    questions = require('./questions'),
-    stresstest = false,
-    stressTester = stresstest ? require('../src/stressTester') : {routing:function(){}},
-    whitelistedHosts = [
-        'localhost'
-    ];
+var express = require('express');
+var comments = require('./comments');
+var threads = require('./threads');
+var users = require('./users');
+var points = require('./points');
+var questions = require('./questions');
+var pendingUsers = require('./pendingUsers');
+
+var stresstest = false;
+var stressTester = stresstest ? require('../src/stressTester') : {routing:function(){}};
+var whitelistedHosts = [
+    'localhost'
+];
 
 module.exports = function routing(){
 
@@ -43,6 +45,7 @@ module.exports = function routing(){
     users(app);
     points(app);
     questions(app);
+    pendingUsers(app);
 
     app.get('*', function(req, res, next){
         res.statusCode = 404;

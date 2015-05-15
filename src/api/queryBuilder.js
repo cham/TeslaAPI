@@ -126,7 +126,8 @@ module.exports = {
                 username: query.username,
                 password: query.password,
                 email: query.email,
-                banned: query.banned
+                banned: query.banned,
+                known_ips: query.known_ips
             });
         },
         'write:users': function(query){
@@ -171,6 +172,40 @@ module.exports = {
             return this.clean({
                 detail: query.detail
             });
+        },
+        'read:pendingusers': function(query){
+            query = query || {};
+
+            return this.clean({
+                _id: query._id,
+                ip: query.ip,
+                username: query.username
+            });
+        },
+        'write:pendingusers': function(query){
+            query = query || {};
+
+            return this.clean({
+                username: query.username,
+                password: query.password ? bcrypt.hashSync(query.password, bcrypt.genSaltSync(12)) : undefined,
+                email: query.email,
+                ip: query.ip,
+                created: query.created,
+                question1: query.question1,
+                answer1: query.answer1,
+                question2: query.question2,
+                answer2: query.answer2,
+                question3: query.question3,
+                answer3: query.answer3,
+                points: query.points
+            });
+        },
+        'update:pendingusers': function(query){
+            query = query || {};
+
+            return this.clean({
+                _id: query._id
+            });
         }
     },
 
@@ -210,6 +245,22 @@ module.exports = {
         },
         'write:questions': function(query){
             var required = ['detail'];
+
+            return this.getMissing(required, query);
+        },
+        'write:pendingusers': function(query){
+            var required = [
+                'username',
+                'password',
+                'email',
+                'ip',
+                'question1',
+                'answer1',
+                'question2',
+                'answer2',
+                'question3',
+                'answer3'
+            ];
 
             return this.getMissing(required, query);
         }
