@@ -35,11 +35,11 @@ module.exports = function routing(app){
             query: {
                 _id: req.route.params.id
             }
-        }, function(err, questions){
+        }, function(err, pendingUsers){
             if(err){
                 return next(err);
             }
-            res.send(questions[0]);
+            res.send(pendingUsers[0]);
         });
     });
 
@@ -60,15 +60,15 @@ module.exports = function routing(app){
                 answer3: req.body.answer3,
                 points: req.body.points
             }
-        }, function(err, question){
+        }, function(err, pendingUser){
             if(err){
                 return next(err);
             }
-            res.send({question: question});
+            res.send(pendingUser);
         });
     });
 
-    // edit user
+    // edit question
     app.put('/questions/:id', checkAuth, function(req, res, next){
         var body = req.body;
 
@@ -85,7 +85,7 @@ module.exports = function routing(app){
             res.send({question: question});
         });
     });
-    // edit user points
+    // edit pending user points
     app.put('/pendingusers/:id/points', checkAuth, function(req, res, next){
         var points = parseInt(req.body.numpoints, 10) || 1;
         var pointedBy = req.body.username;
