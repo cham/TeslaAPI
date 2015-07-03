@@ -7,7 +7,7 @@ function checkAuth(res, req, next){
 
 module.exports = function routing(app){
 
-    // get message
+    // get user
     app.get('/pendingusers', checkAuth, function(req, res, next){
         api.pendingUsers.getPendingUsers({
             query: {
@@ -39,11 +39,11 @@ module.exports = function routing(app){
             if(err){
                 return next(err);
             }
-            res.send({question: questions[0]});
+            res.send(questions[0]);
         });
     });
 
-    // new message
+    // new user
     app.post('/pendingusers', checkAuth, function(req, res, next){
         api.pendingUsers.createPendingUser({
             query: {
@@ -68,7 +68,7 @@ module.exports = function routing(app){
         });
     });
 
-    // edit message
+    // edit user
     app.put('/questions/:id', checkAuth, function(req, res, next){
         var body = req.body;
 
@@ -112,6 +112,20 @@ module.exports = function routing(app){
 
                 res.send({pendingUsers: pendingUsers});
             });
+        });
+    });
+
+    // delete user
+    app.delete('/pendingusers/:id', checkAuth, function(req, res, next){
+        api.pendingUsers.deletePendingUser({
+            query: {
+                _id: req.route.params.id
+            }
+        }, function(err){
+            if(err){
+                return next(err);
+            }
+            res.end();
         });
     });
 

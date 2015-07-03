@@ -135,6 +135,14 @@ module.exports = function(db){
                     });
                 });
             });
+        },
+
+        deletePendingUser: function(options, done){
+            if(!options.query || !options.query._id){
+                return done(new Error('_id is required'));
+            }
+
+            db.pendingUser.findOne({_id: options.query._id}).remove(done);
         }
     };
 };

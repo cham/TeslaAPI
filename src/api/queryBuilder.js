@@ -187,7 +187,7 @@ module.exports = {
 
             return this.clean({
                 username: query.username,
-                password: query.password ? bcrypt.hashSync(query.password, bcrypt.genSaltSync(12)) : undefined,
+                password: query.password,
                 email: query.email,
                 ip: query.ip,
                 created: query.created,
