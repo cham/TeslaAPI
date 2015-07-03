@@ -604,7 +604,7 @@ module.exports = function routing(app){
     });
     // reset password
     app.put('/user/:username/resetpassword', checkAuth, function(req, res, next){
-        var username = req.route.params.username,
+        var username = decodeURIComponent(req.route.params.username),
             body = req.body;
 
         api.users.getUser({
