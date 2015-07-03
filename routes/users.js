@@ -281,7 +281,7 @@ module.exports = function routing(app){
                 username: body.username,
                 password: body.password,
                 email: body.email,
-                ip: req.connection.remoteAddress
+                ip: body.ip || req.connection.remoteAddress
             }
         }, function(err, data){
             if(err){
