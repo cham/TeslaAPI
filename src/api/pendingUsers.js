@@ -67,6 +67,7 @@ module.exports = function(db){
                 if(err){
                     return done(err);
                 }
+console.log('api post-queryBuilder query', cleanOptions.query);
 
                 usersApi.getUser({
                     query: {
@@ -94,6 +95,7 @@ module.exports = function(db){
                         }
 
                         cleanOptions.query.created = new Date();
+console.log('api new pendingUser', cleanOptions.query);
 
                         var pendingUser = new db.pendingUser(cleanOptions.query);
 
@@ -102,6 +104,7 @@ module.exports = function(db){
                                 return done(err);
                             }
 
+console.log('api saved pendingUser', pendingUser.toJSON());
                             done(null, pendingUser);
                         });
                     });

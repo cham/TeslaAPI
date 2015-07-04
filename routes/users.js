@@ -275,7 +275,7 @@ module.exports = function routing(app){
     // new user
     app.post('/user', checkAuth, function(req, res, next){
         var body = req.body;
-
+console.log('route new user', body);
         api.users.addUser({
             query: {
                 username: body.username,

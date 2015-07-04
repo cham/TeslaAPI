@@ -45,20 +45,22 @@ module.exports = function routing(app){
 
     // new user
     app.post('/pendingusers', checkAuth, function(req, res, next){
+        var body = req.body;
+console.log('route new pendinguser', body);
         api.pendingUsers.createPendingUser({
             query: {
-                username: req.body.username,
-                password: req.body.password,
-                email: req.body.email,
-                ip: req.body.ip,
-                created: req.body.created,
-                question1: req.body.question1,
-                answer1: req.body.answer1,
-                question2: req.body.question2,
-                answer2: req.body.answer2,
-                question3: req.body.question3,
-                answer3: req.body.answer3,
-                points: req.body.points
+                username: body.username,
+                password: body.password,
+                email: body.email,
+                ip: body.ip,
+                created: body.created,
+                question1: body.question1,
+                answer1: body.answer1,
+                question2: body.question2,
+                answer2: body.answer2,
+                question3: body.question3,
+                answer3: body.answer3,
+                points: body.points
             }
         }, function(err, pendingUser){
             if(err){
