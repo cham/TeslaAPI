@@ -17,5 +17,5 @@ Tesla forum database and RESTful API
 4. run `npm install`
 5. run `node api.js`
 
-The yay API is now running on port 3000.
+The yay API is now running on port 3100.
 
