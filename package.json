@@ -14,7 +14,7 @@
     "express": "3.1.0",
     "levenshtein": "1.0.2",
     "moment": "2.0.0",
-    "mongoose": "3.6.19",
+    "mongoose": "5.7.7",
     "nodeload": "0.4.0",
     "request": "^2.51.0",
     "sanitizer": "~0.0.15",
