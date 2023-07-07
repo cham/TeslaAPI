@@ -15,10 +15,9 @@
     "levenshtein": "1.0.2",
     "moment": "2.0.0",
     "mongoose": "3.6.19",
-    "nodeload": "0.4.0",
+    "node-toobusy": "^0.6.3",
     "request": "^2.51.0",
     "sanitizer": "~0.0.15",
-    "toobusy": "0.2.3",
     "underscore": "1.4.4"
   }
 }
