@@ -112,7 +112,6 @@ module.exports = function(db){
         addUser: function(options, done){
             queryBuilder.buildOptions('write:users', options, function(err, cleanOptions){
                 if(err) return done(err);
-console.log('api new user', cleanOptions.query);
                 var user = new db.user(cleanOptions.query);
 
                 user.save(function(err){
