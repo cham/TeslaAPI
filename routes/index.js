@@ -15,7 +15,8 @@ var pendingUsers = require('./pendingUsers');
 var stresstest = false;
 var stressTester = stresstest ? require('../src/stressTester') : {routing:function(){}};
 var whitelistedHosts = [
-    'localhost'
+    'localhost',
+    'api:3100',
 ];
 
 module.exports = function routing(){
