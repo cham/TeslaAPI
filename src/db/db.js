@@ -17,11 +17,23 @@ var messageModel = mongoose.model('Message', MessageSchema);
 var questionModel = mongoose.model('Question', QuestionSchema);
 var pendingUserModel = mongoose.model('PendingUser', PendingUserSchema);
     
-mongoose.connect(process.env.DATABASE_URL || 'mongodb://localhost/tesladb', function(err){
-    if(err){
+const dbUrl = process.env.DATABASE_URL || 'mongodb://localhost/tesladb';
+
+mongoose.connect(
+    dbUrl,
+    {
+      server: {
+        socketOptions: {
+          socketTimeoutMS: 2000,
+        },
+      },
+    },
+    (err) => {
+      if (err) {
         throw err;
+      }
     }
-});
+  );
 
 module.exports = {
     user: userModel,
