@@ -32,14 +32,21 @@ const questions = [
   "Should you get a Mac?",
   "Who is your favorite artist or designer?",
   "Are you a dog person, a cat person, or an obscure pet (like a weird lizard or seaweed) person?",
-]
+];
 
+let k = 0;
 for (const i in questions) {
-  api.questions.createQuestion({
-    query: {
-      detail: questions[i]
+  api.questions.createQuestion(
+    {
+      query: {
+        detail: questions[i],
+      },
+    },
+    (err, question) => {
+      console.log(`question ${question.id} created!`);
+      if (k++ === questions.length - 1) {
+        process.exit(0);
+      }
     }
-  }, (err, question) => {
-    console.log(`question ${question.id} created!`)
-  })
+  );
 }

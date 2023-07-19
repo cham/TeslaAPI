@@ -16,5 +16,6 @@ api.users.addUser(
     } else {
       console.log(`user created!`);
     }
+    process.exit()
   }
 );
