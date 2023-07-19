@@ -1,5 +1,6 @@
 const api = require("../src/api/api");
 
+// node ./cmd/createuser.js username password email
 api.users.addUser(
   {
     query: {
@@ -9,7 +10,11 @@ api.users.addUser(
       ip: "192.168.0.1",
     },
   },
-  (err, user) => {
-    console.log(`${user.username} created!`);
+  (err) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(`user created!`);
+    }
   }
 );

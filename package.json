@@ -13,11 +13,11 @@
     "bcrypt": "3.0.6",
     "express": "3.1.0",
     "levenshtein": "1.0.2",
-    "moment": "2.0.0",
-    "mongoose": "4.13.20",
+    "moment": "^2.29.1",
+    "mongoose": "4.13.21",
     "node-toobusy": "^0.6.3",
     "request": "^2.51.0",
     "sanitizer": "~0.0.15",
-    "underscore": "1.4.4"
+    "underscore": "^1.13.2"
   }
 }
