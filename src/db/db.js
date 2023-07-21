@@ -24,7 +24,7 @@ mongoose.connect(
     {
       server: {
         socketOptions: {
-          socketTimeoutMS: 2000,
+          socketTimeoutMS: 10000,
         },
       },
     },
